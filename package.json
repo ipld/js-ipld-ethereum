@@ -36,5 +36,16 @@
   },
   "contributors": [
     "kumavis <aaron@kumavis.me>"
-  ]
+  ],
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipld/js-ipld-eth-star.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ipld/js-ipld-eth-star/issues"
+  },
+  "homepage": "https://github.com/ipld/js-ipld-eth-star#readme"
 }
