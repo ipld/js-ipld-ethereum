@@ -1,4 +1,4 @@
-# js-ipld-eth-block
+# js-ipld-eth-star
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
 [![](https://img.shields.io/badge/project-IPLD-blue.svg?style=flat-square)](http://github.com/ipld/ipld)
@@ -9,7 +9,7 @@
 ## Install
 
 ```sh
-$ npm install ipld-eth-block
+$ npm install ipld-eth-star
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ TBD
 
 ## Contribute
 
-Please contribute! [Look at the issues](https://github.com/ipld/js-ipld-eth-block/issues)!
+Please contribute! [Look at the issues](https://github.com/ipld/js-ipld-eth-star/issues)!
 
 Check out our [contributing document](https://github.com/ipld/ipld/blob/master/contributing.md) for more information on how we work, and about contributing in general. Please be aware that all interactions related to IPLD are subject to the IPFS [Code of Conduct](https://github.com/ipfs/community/blob/master/code-of-conduct.md).
 
