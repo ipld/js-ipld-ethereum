@@ -33,5 +33,8 @@
     "aegir": "^11.0.2",
     "chai": "^4.0.2",
     "dirty-chai": "^2.0.0"
-  }
+  },
+  "contributors": [
+    "kumavis <aaron@kumavis.me>"
+  ]
 }
