@@ -41,7 +41,7 @@ describe('IPLD format resolver (local)', () => {
   describe('resolver.resolve', () => {
     it('path within scope', () => {
       resolver.resolve(testIpfsBlock, 'nonce', (err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(result.value.toString('hex')).to.equal(testData.nonce.toString('hex'))
         // expect(result.value).to.equal(testData.nonce.toString('hex'))
       })
@@ -51,7 +51,7 @@ describe('IPLD format resolver (local)', () => {
   describe('resolver.resolve', () => {
     it('resolver.tree', () => {
       resolver.tree(testIpfsBlock, (err, paths) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         expect(typeof paths).to.eql('object')
         // expect(Array.isArray(paths)).to.eql(true)
       })

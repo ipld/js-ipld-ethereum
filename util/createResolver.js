@@ -11,7 +11,10 @@ function createResolver (multicodec, EthObjClass, mapFromEthObject) {
     multicodec: multicodec,
     resolve: resolve,
     tree: tree,
-    isLink: createIsLink(resolve)
+    isLink: createIsLink(resolve),
+    _resolveFromEthObject: resolveFromEthObject,
+    _treeFromEthObject: treeFromEthObject,
+    _mapFromEthObject: mapFromEthObject
   }
 
   return {
@@ -66,25 +69,48 @@ function createResolver (multicodec, EthObjClass, mapFromEthObject) {
       return callback(null, result)
     }
 
-    // parse path
-    const pathParts = path.split('/')
-    const firstPart = pathParts.shift()
-    const remainderPath = pathParts.join('/')
+    // // parse path
+    // const pathParts = path.split('/')
+    // const firstPart = pathParts.shift()
+    // const remainderPath = pathParts.join('/')
 
     // check tree results
     mapFromEthObject(ethObj, {}, (err, paths) => {
       if (err) return callback(err)
 
-      const treeResult = paths.find(child => child.path === firstPart)
+      // const treeResult = paths.find(child => child.path === firstPart)
+      // if (!treeResult) {
+      //   const err = new Error('Path not found ("' + firstPart + '").')
+      //   return callback(err)
+      // }
+      //
+      // const result = {
+      //   value: treeResult.value,
+      //   remainderPath: remainderPath
+      // }
+
+      // parse path
+      const pathParts = path.split('/')
+      // find potential matches
+      let matches = paths.filter((child) => child.path === path.slice(0, child.path.length))
+      // only match whole path chunks
+      matches = matches.filter((child) => child.path.split('/').every((part, index) => part === pathParts[index]))
+      // take longest match
+      const sortedMatches = matches.sort((a, b) => a.path.length < b.path.length)
+      const treeResult = sortedMatches[0]
+
       if (!treeResult) {
-        const err = new Error('Path not found ("' + firstPart + '").')
+        let err = new Error('Path not found ("' + path + '").')
         return callback(err)
       }
+
+      const remainderPath = path.slice(treeResult.path.length)
 
       const result = {
         value: treeResult.value,
         remainderPath: remainderPath
       }
+
       return callback(null, result)
     })
   }

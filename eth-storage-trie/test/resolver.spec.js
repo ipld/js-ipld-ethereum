@@ -69,7 +69,7 @@ describe('IPLD format resolver (local)', () => {
     it('root node resolves to neck', (done) => {
       let rootNode = dagNodes[0]
       resolver.resolve(rootNode, '0/0/0/c/0/a/0/0/', (err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         let trieNode = result.value
         expect(result.remainderPath).to.eql('c/0/a/0/0/')
         expect(isExternalLink(trieNode)).to.eql(true)
@@ -80,7 +80,7 @@ describe('IPLD format resolver (local)', () => {
     it('neck node resolves "c" down to buffer', (done) => {
       let node = dagNodes[1]
       resolver.resolve(node, 'c/0/a/0/0/', (err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         let trieNode = result.value
         expect(result.remainderPath).to.eql('')
         expect(isExternalLink(trieNode)).to.eql(false)
@@ -92,7 +92,7 @@ describe('IPLD format resolver (local)', () => {
     it('neck node resolves "b" down to branch', (done) => {
       let node = dagNodes[1]
       resolver.resolve(node, 'b/0/a/0/0/', (err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         let trieNode = result.value
         expect(result.remainderPath).to.eql('0/a/0/0/')
         expect(isExternalLink(trieNode)).to.eql(true)
@@ -103,7 +103,7 @@ describe('IPLD format resolver (local)', () => {
     it('neck node resolves "a" down to branch', (done) => {
       let node = dagNodes[1]
       resolver.resolve(node, 'a/0/a/0/0/', (err, result) => {
-        expect(err).to.not.exist
+        expect(err).to.not.exist()
         let trieNode = result.value
         expect(result.remainderPath).to.eql('0/a/0/0/')
         expect(isExternalLink(trieNode)).to.eql(true)
