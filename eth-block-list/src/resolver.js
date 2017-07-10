@@ -6,7 +6,6 @@ const IpldEthBlock = require('ipld-eth-block')
 const util = require('./util')
 const cidForHash = require('./common').cidForHash
 
-
 exports = module.exports
 
 exports.multicodec = 'eth-block-list'
@@ -24,7 +23,7 @@ exports.resolve = (block, path, callback) => {
 
 exports.resolveFromObject = (ethBlockList, path, callback) => {
   let result
-  
+
   // root
   if (!path || path === '/') {
     result = { value: ethBlockList, remainderPath: '' }
@@ -36,9 +35,9 @@ exports.resolveFromObject = (ethBlockList, path, callback) => {
     if (err) return callback(err)
 
     // find potential matches
-    let matches = paths.filter(child => child.path === path.slice(0,child.path.length))
+    let matches = paths.filter(child => child.path === path.slice(0, child.path.length))
     // take longest match
-    let sortedMatches = matches.sort((a,b) => a.path.length < b.path.length)
+    let sortedMatches = matches.sort((a, b) => a.path.length < b.path.length)
     let treeResult = sortedMatches[0]
 
     if (!treeResult) {

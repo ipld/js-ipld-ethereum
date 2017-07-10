@@ -1,3 +1,6 @@
+'use strict'
+/* eslint-env mocha */
+
 describe('eth-account-snapshot', () => {
   require('../eth-account-snapshot/test/resolver.spec.js')
 })

@@ -14,7 +14,7 @@ describe('IPLD format resolver (local)', () => {
     nonce: new Buffer('02', 'hex'),
     balance: new Buffer('04a817c800', 'hex'),
     codeHash: new Buffer('abcd04a817c80004a817c80004a817c80004a817c80004a817c80004a817c800', 'hex'),
-    stateRoot: new Buffer('012304a817c80004a817c80004a817c80004a817c80004a817c80004a817c800', 'hex'),
+    stateRoot: new Buffer('012304a817c80004a817c80004a817c80004a817c80004a817c80004a817c800', 'hex')
   }
 
   before((done) => {

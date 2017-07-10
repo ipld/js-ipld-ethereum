@@ -87,6 +87,5 @@ function tree (block, options, callback) {
         })
       }
     ], callback)
-
   })
 }

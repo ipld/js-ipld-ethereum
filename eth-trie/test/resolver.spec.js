@@ -11,7 +11,6 @@ const isExternalLink = require('../src/common').isExternalLink
 const toIpfsBlock = require('../../util/toIpfsBlock')
 const resolver = ipldEthTrie.resolver
 
-
 describe('IPLD format resolver (local)', () => {
   let trie
   let trieNodes = []

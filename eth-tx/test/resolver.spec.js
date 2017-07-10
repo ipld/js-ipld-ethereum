@@ -8,7 +8,6 @@ const toIpfsBlock = require('../../util/toIpfsBlock')
 const dagEthBlock = require('../src')
 const resolver = dagEthBlock.resolver
 
-
 describe('IPLD format resolver (local)', () => {
   let testIpfsBlock
   let testData = {

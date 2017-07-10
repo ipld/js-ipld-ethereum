@@ -37,6 +37,6 @@ exports.cid = function (blockList, callback) {
         return cb(err)
       }
       cb(null, cid)
-    },
+    }
   ], callback)
 }
