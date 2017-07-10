@@ -10,7 +10,7 @@ const EthBlockHeader = require('ethereumjs-block/header')
 const multihashing = require('multihashing-async')
 const waterfall = require('async/waterfall')
 
-const ipldEthBlock = require('../src')
+const ipldEthBlock = require('../index')
 const resolver = ipldEthBlock.resolver
 
 describe('IPLD format resolver (local)', () => {
@@ -36,6 +36,7 @@ describe('IPLD format resolver (local)', () => {
 
   before((done) => {
     const testEthBlock = new EthBlockHeader(testData)
+
     waterfall([
       (cb) => ipldEthBlock.util.serialize(testEthBlock, cb),
       (serialized, cb) => multihashing(serialized, 'keccak-256', (err, hash) => {
@@ -78,6 +79,10 @@ describe('IPLD format resolver (local)', () => {
     resolver.tree(testIpfsBlock, (err, paths) => {
       expect(err).not.to.exist()
       expect(Array.isArray(paths)).to.eql(true)
+      expect(paths.length).to.eql(20)
+      paths.forEach((path) => {
+        expect(typeof path).to.eql('string')
+      })
     })
   })
 })

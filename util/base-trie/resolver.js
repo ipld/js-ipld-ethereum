@@ -1,23 +1,32 @@
 'use strict'
 
-const async = require('async')
-const TrieNode = require('merkle-patricia-tree/trieNode')
-const util = require('./util')
-const cidForHash = require('./common').cidForHash
+const each = require('async/each')
+const asyncify = require('async/asyncify')
+const rlp = require('rlp')
+const EthTrieNode = require('merkle-patricia-tree/trieNode')
+const cidFromHash = require('../cidFromHash')
+const createUtil = require('../createUtil')
 
 /*
- * resolve: receives a path and a block and returns the value on path,
- * throw if not possible. `block` is an IPFS Block instance (contains data + key)
+ * resolve: receives a path and a ipfsBlock and returns the value on path,
+ * throw if not possible. `ipfsBlock` is an IPFS Block instance (contains data + key)
  */
 
-exports.resolve = (trieIpldFormat, block, path, callback) => {
-  util.deserialize(block.data, (err, ethTrieNode) => {
+exports.resolve = (multicodec, ipfsBlock, path, callback) => {
+  const util = createUtil(multicodec, EthTrieNode)
+  util.deserialize = asyncify((serialized) => {
+    const rawNode = rlp.decode(serialized)
+    const trieNode = new EthTrieNode(rawNode)
+    return trieNode
+  })
+
+  util.deserialize(ipfsBlock.data, (err, ethTrieNode) => {
     if (err) return callback(err)
-    exports.resolveFromObject(trieIpldFormat, ethTrieNode, path, callback)
+    exports.resolveFromObject(multicodec, ethTrieNode, path, callback)
   })
 }
 
-exports.resolveFromObject = (trieIpldFormat, ethTrieNode, path, callback) => {
+exports.resolveFromObject = (multicodec, ethTrieNode, path, callback) => {
   let result
 
   // root
@@ -36,7 +45,7 @@ exports.resolveFromObject = (trieIpldFormat, ethTrieNode, path, callback) => {
   }
 
   // check tree results
-  exports.treeFromObject(trieIpldFormat, ethTrieNode, {}, (err, paths) => {
+  exports.treeFromObject(multicodec, ethTrieNode, {}, (err, paths) => {
     if (err) return callback(err)
 
     // find potential matches
@@ -80,7 +89,7 @@ exports.resolveFromObject = (trieIpldFormat, ethTrieNode, path, callback) => {
  * are option (i.e. nestness)
  */
 
-exports.tree = (trieIpldFormat, block, options, callback) => {
+exports.tree = (multicodec, ipfsBlock, options, callback) => {
   // parse arguments
   if (typeof options === 'function') {
     callback = options
@@ -90,14 +99,14 @@ exports.tree = (trieIpldFormat, block, options, callback) => {
     options = {}
   }
 
-  util.deserialize(block.data, (err, trieNode) => {
+  util.deserialize(ipfsBlock.data, (err, trieNode) => {
     if (err) return callback(err)
-    exports.treeFromObject(trieIpldFormat, trieNode, options, callback)
+    exports.treeFromObject(multicodec, trieNode, options, callback)
   })
 }
 
-exports.isLink = (block, path, callback) => {
-  exports.resolve(block, path, (err, result) => {
+exports.isLink = (ipfsBlock, path, callback) => {
+  exports.resolve(ipfsBlock, path, (err, result) => {
     if (err) {
       return callback(err)
     }
@@ -116,21 +125,21 @@ exports.isLink = (block, path, callback) => {
 
 // util
 
-exports.treeFromObject = (trieIpldFormat, trieNode, options, callback) => {
+exports.treeFromObject = (multicodec, trieNode, options, callback) => {
   let paths = []
 
-  async.each(trieNode.getChildren(), (childData, next) => {
+  each(trieNode.getChildren(), (childData, next) => {
     let key = nibbleToPath(childData[0])
     let value = childData[1]
-    if (TrieNode.isRawNode(value)) {
+    if (EthTrieNode.isRawNode(value)) {
       // inline child root
-      let childNode = new TrieNode(value)
+      let childNode = new EthTrieNode(value)
       paths.push({
         path: key,
         value: childNode
       })
       // inline child non-leaf subpaths
-      exports.treeFromObject(trieIpldFormat, childNode, options, (err, subtree) => {
+      exports.treeFromObject(multicodec, childNode, options, (err, subtree) => {
         if (err) return next(err)
         subtree.forEach((path) => {
           path.path = key + '/' + path.path
@@ -140,7 +149,7 @@ exports.treeFromObject = (trieIpldFormat, trieNode, options, callback) => {
       })
     } else {
       // other nodes link by hash
-      let link = { '/': cidForHash(trieIpldFormat, value).toBaseEncodedString() }
+      let link = { '/': cidFromHash(multicodec, value).toBaseEncodedString() }
       paths.push({
         path: key,
         value: link

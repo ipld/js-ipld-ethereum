@@ -6,9 +6,9 @@ const async = require('async')
 const IpfsBlock = require('ipfs-block')
 const Trie = require('merkle-patricia-tree')
 const TrieNode = require('merkle-patricia-tree/trieNode')
-const isExternalLink = require('ipld-eth-trie/src/common').isExternalLink
-const ipldEthStateTrie = require('../src')
+const ipldEthStateTrie = require('../index')
 const toIpfsBlock = require('../../util/toIpfsBlock')
+const isExternalLink = require('../../util/isExternalLink')
 const resolver = ipldEthStateTrie.resolver
 
 describe('IPLD format resolver (local)', () => {

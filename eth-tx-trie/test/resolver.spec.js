@@ -7,9 +7,9 @@ const IpfsBlock = require('ipfs-block')
 const EthBlock = require('ethereumjs-block')
 const EthTx = require('ethereumjs-tx')
 const Trie = require('merkle-patricia-tree')
-const isExternalLink = require('ipld-eth-trie/src/common').isExternalLink
-const ipldEthStateTrie = require('../src')
+const ipldEthStateTrie = require('../index')
 const toIpfsBlock = require('../../util/toIpfsBlock')
+const isExternalLink = require('../../util/isExternalLink')
 const resolver = ipldEthStateTrie.resolver
 
 describe('IPLD format resolver (local)', () => {

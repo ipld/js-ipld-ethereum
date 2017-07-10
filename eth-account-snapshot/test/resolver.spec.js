@@ -2,7 +2,7 @@
 'use strict'
 
 const expect = require('chai').expect
-const dagEthAccount = require('../src')
+const dagEthAccount = require('../index')
 const resolver = dagEthAccount.resolver
 const IpfsBlock = require('ipfs-block')
 const Account = require('ethereumjs-account')

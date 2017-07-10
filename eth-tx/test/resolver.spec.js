@@ -5,7 +5,7 @@ const expect = require('chai').expect
 const IpfsBlock = require('ipfs-block')
 const Transaction = require('ethereumjs-tx')
 const toIpfsBlock = require('../../util/toIpfsBlock')
-const dagEthBlock = require('../src')
+const dagEthBlock = require('../index')
 const resolver = dagEthBlock.resolver
 
 describe('IPLD format resolver (local)', () => {

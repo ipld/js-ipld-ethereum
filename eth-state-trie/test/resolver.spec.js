@@ -8,11 +8,11 @@ const async = require('async')
 const Account = require('ethereumjs-account')
 const Trie = require('merkle-patricia-tree')
 const TrieNode = require('merkle-patricia-tree/trieNode')
-const isExternalLink = require('ipld-eth-trie/src/common').isExternalLink
 const multihashing = require('multihashing-async')
 const CID = require('cids')
-const ipldEthStateTrie = require('../src')
+const ipldEthStateTrie = require('../index')
 const toIpfsBlock = require('../../util/toIpfsBlock')
+const isExternalLink = require('../../util/isExternalLink')
 const resolver = ipldEthStateTrie.resolver
 
 describe('IPLD format resolver (local)', () => {
@@ -111,9 +111,10 @@ describe('IPLD format resolver (local)', () => {
   describe('resolver.tree', () => {
     it('"c" branch node lists account paths', (done) => {
       let cBranchNode = dagNodes[4]
-      resolver.tree(cBranchNode, (err, result) => {
+      resolver.tree(cBranchNode, (err, childPaths) => {
         expect(err).to.not.exist()
-        let childPaths = result.map(item => item.path)
+        expect(Array.isArray(childPaths)).to.eql(true)
+        expect(childPaths.length).to.eql(6)
         expect(childPaths).to.contain('balance')
         done()
       })
