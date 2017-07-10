@@ -1,12 +1,14 @@
 'use strict'
 /* eslint max-nested-callbacks: ["error", 5] */
 
-const async = require('async')
+const each = require('async/each')
+const waterfall = require('async/waterfall')
 const util = require('ipld-eth-trie/src/util.js')
 const resolver = require('ipld-eth-trie/src/resolver.js')
 const isExternalLink = require('ipld-eth-trie/src/common').isExternalLink
 const IpldEthTxResolver = require('ipld-eth-tx').resolver
-const IpfsBlock = require('ipfs-block')
+const toIpfsBlock = require('../../util/toIpfsBlock')
+const createIsLink = require('../../util/createIsLink')
 
 const trieIpldFormat = 'eth-tx-trie'
 
@@ -23,54 +25,68 @@ exports.resolver = {
 }
 
 function resolve (block, path, callback) {
-  resolver.resolve(trieIpldFormat, block, path, (err, result) => {
-    if (err) return callback(err)
-    if (isExternalLink(result.value) || result.remainderPath.length === 0) {
-      return callback(null, result)
+  waterfall([
+    (cb) => resolver.resolve(trieIpldFormat, block, path, cb),
+    (result, cb) => {
+      if (isExternalLink(result.value) || result.remainderPath.length === 0) {
+        return cb(null, result)
+      }
+
+      // continue to resolve on node
+      toIpfsBlock(trieIpldFormat, result.value, (err, block) => {
+        if (err) {
+          return cb(err)
+        }
+        IpldEthTxResolver.resolve(block, result.remainderPath, cb)
+      })
     }
-    // continue to resolve on node
-    let block = new IpfsBlock(result.value)
-    IpldEthTxResolver.resolve(block, result.remainderPath, callback)
-  })
+  ], callback)
 }
 
 function tree (block, options, callback) {
   exports.util.deserialize(block.data, (err, trieNode) => {
     if (err) return callback(err)
+
     // leaf node
     if (trieNode.type === 'leaf') {
-      let block = new IpfsBlock(trieNode.getValue())
-      IpldEthTxResolver.tree(block, options, (err, paths) => {
-        if (err) return callback(err)
-        callback(null, paths)
-      })
-      return
+      return waterfall([
+        (cb) => toIpfsBlock(trieIpldFormat, trieNode.getValue(), cb),
+        (block, cb) => IpldEthTxResolver.tree(block, options, cb)
+      ], callback)
     }
+
     // non-leaf node
-    resolver.treeFromObject(trieIpldFormat, trieNode, options, (err, result) => {
-      if (err) return callback(err)
-      let paths = []
-      async.each(result, (child, next) => {
-        if (Buffer.isBuffer(child.value)) {
+    waterfall([
+      (cb) => resolver.treeFromObject(trieIpldFormat, trieNode, options, cb),
+      (result, cb) => {
+        let paths = []
+        each(result, (child, next) => {
+          if (!Buffer.isBuffer(child.value)) {
+            // node is non-leaf - add as is
+            paths.push(child)
+            return next()
+          }
+
           // node is leaf - continue to tree
           let key = child.key
-          let block = new IpfsBlock(child.value)
-          IpldEthTxResolver.tree(block, options, (err, subpaths) => {
-            if (err) return next(err)
-            subpaths.forEach((path) => {
-              path.path = key + '/' + path.path
-            })
-            paths = paths.concat(subpaths)
-          })
-        } else {
-          // node is non-leaf - add as is
-          paths.push(child)
-          next()
-        }
-      }, (err) => {
-        if (err) return callback(err)
-        callback(null, paths)
-      })
-    })
+          waterfall([
+            (cb) => toIpfsBlock(trieIpldFormat, child.value, cb),
+            (block, cb) => IpldEthTxResolver.tree(block, options, cb),
+            (subpaths, cb) => {
+              paths = paths.concat(subpaths.map((p) => {
+                p.path = key + '/' + p.path
+              }))
+              cb()
+            }
+          ], next)
+        }, (err) => {
+          if (err) {
+            return cb(err)
+          }
+          cb(null, paths)
+        })
+      }
+    ], callback)
+
   })
 }

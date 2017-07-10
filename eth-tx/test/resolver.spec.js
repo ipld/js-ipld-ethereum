@@ -2,10 +2,12 @@
 'use strict'
 
 const expect = require('chai').expect
-const dagEthBlock = require('../src')
-const resolver = dagEthBlock.resolver
 const IpfsBlock = require('ipfs-block')
 const Transaction = require('ethereumjs-tx')
+const toIpfsBlock = require('../../util/toIpfsBlock')
+const dagEthBlock = require('../src')
+const resolver = dagEthBlock.resolver
+
 
 describe('IPLD format resolver (local)', () => {
   let testIpfsBlock
@@ -25,8 +27,11 @@ describe('IPLD format resolver (local)', () => {
     const testTx = new Transaction(testData)
     dagEthBlock.util.serialize(testTx, (err, result) => {
       if (err) return done(err)
-      testIpfsBlock = new IpfsBlock(result)
-      done()
+      toIpfsBlock(resolver.multicodec, result, (err, ipfsBlock) => {
+        if (err) return done(err)
+        testIpfsBlock = ipfsBlock
+        done()
+      })
     })
   })
 

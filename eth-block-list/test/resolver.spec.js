@@ -2,7 +2,6 @@
 'use strict'
 
 const expect = require('chai').expect
-const IpfsBlock = require('ipfs-block')
 const multihash = require('multihashes')
 const RLP = require('rlp')
 const EthBlock = require('ethereumjs-block')
@@ -12,7 +11,7 @@ const resolver = dagEthBlockList.resolver
 const block97Data = require('./data/block97.json')
 const ommerData0 = require('./data/ommer0.json')
 const ommerData1 = require('./data/ommer1.json')
-
+const toIpfsBlock = require('../../util/toIpfsBlock')
 
 describe('IPLD format resolver (local)', () => {
   let testIpfsBlock
@@ -22,8 +21,11 @@ describe('IPLD format resolver (local)', () => {
     let rawOmmers = ethBlock.uncleHeaders.map((ommerHeader) => ommerHeader.raw)
     dagEthBlockList.util.serialize(rawOmmers, (err, result) => {
       if (err) return done(err)
-      testIpfsBlock = new IpfsBlock(result)
-      done()
+      toIpfsBlock(resolver.multicodec, result, (err, ipfsBlock) => {
+        if (err) return done(err)
+        testIpfsBlock = ipfsBlock
+        done()
+      })
     })
   })
 

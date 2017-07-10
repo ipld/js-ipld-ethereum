@@ -2,13 +2,15 @@
 'use strict'
 
 const expect = require('chai').expect
-const ipldEthTrie = require('../src')
-const isExternalLink = require('../src/common').isExternalLink
-const resolver = ipldEthTrie.resolver
 const async = require('async')
 const IpfsBlock = require('ipfs-block')
 const Trie = require('merkle-patricia-tree')
 const TrieNode = require('merkle-patricia-tree/trieNode')
+const ipldEthTrie = require('../src')
+const isExternalLink = require('../src/common').isExternalLink
+const toIpfsBlock = require('../../util/toIpfsBlock')
+const resolver = ipldEthTrie.resolver
+
 
 describe('IPLD format resolver (local)', () => {
   let trie
@@ -20,10 +22,13 @@ describe('IPLD format resolver (local)', () => {
     async.waterfall([
       (cb) => populateTrie(trie, cb),
       (cb) => dumpTrieNonInlineNodes(trie, trieNodes, cb),
-      (cb) => async.map(trieNodes, ipldEthTrie.util.serialize, cb)
+      (cb) => async.map(trieNodes, ipldEthTrie.util.serialize, cb),
+      (nodes, cb) => async.map(nodes, (node, cb) => {
+        toIpfsBlock(resolver.multicodec, node, cb)
+      }, cb)
     ], (err, result) => {
       if (err) return done(err)
-      dagNodes = result.map((serialized) => new IpfsBlock(serialized))
+      dagNodes = result
       done()
     })
   })

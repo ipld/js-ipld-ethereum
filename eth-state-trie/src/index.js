@@ -10,6 +10,8 @@ const IpldEthAccountSnapshotResolver = require('ipld-eth-account-snapshot').reso
 const IpfsBlock = require('ipfs-block')
 const CID = require('cids')
 const multihashing = require('multihashing-async')
+const toIpfsBlock = require('../../util/toIpfsBlock')
+const createIsLink = require('../../util/createIsLink')
 
 const trieIpldFormat = 'eth-state-trie'
 
@@ -23,7 +25,7 @@ exports.resolver = {
   multicodec: trieIpldFormat,
   tree: tree,
   resolve: resolve,
-  isLink: isLink
+  isLink: createIsLink(resolve)
 }
 
 function resolve (block, path, callback) {
@@ -35,7 +37,7 @@ function resolve (block, path, callback) {
       }
 
       // continue to resolve on node
-      toIpfsBlock(result.value, (err, block) => {
+      toIpfsBlock(trieIpldFormat, result.value, (err, block) => {
         if (err) {
           return cb(err)
         }
@@ -54,7 +56,7 @@ function tree (block, options, callback) {
     // leaf node
     if (trieNode.type === 'leaf') {
       return waterfall([
-        (cb) => toIpfsBlock(trieNode.getValue(), cb),
+        (cb) => toIpfsBlock(trieIpldFormat, trieNode.getValue(), cb),
         (block, cb) => IpldEthAccountSnapshotResolver.tree(block, options, cb)
       ], callback)
     }
@@ -74,7 +76,7 @@ function tree (block, options, callback) {
           // node is leaf - continue to tree
           let key = child.key
           waterfall([
-            (cb) => toIpfsBlock(child.value, cb),
+            (cb) => toIpfsBlock(trieIpldFormat, child.value, cb),
             (block, cb) => IpldEthAccountSnapshotResolver.tree(block, options, cb),
             (subpaths, cb) => {
               paths = paths.concat(subpaths.map((p) => {
@@ -91,33 +93,5 @@ function tree (block, options, callback) {
         })
       }
     ], callback)
-  })
-}
-
-function isLink (block, path, callback) {
-  resolve(block, path, (err, result) => {
-    if (err) {
-      return callback(err)
-    }
-
-    if (result.remainderPath.length > 0) {
-      return callback(new Error('path out of scope'))
-    }
-
-    if (typeof result.value === 'object' && result.value['/']) {
-      callback(null, result.value)
-    } else {
-      callback(null, false)
-    }
-  })
-}
-
-function toIpfsBlock (value, callback) {
-  multihashing(value, 'keccak-256', (err, hash) => {
-    if (err) {
-      return callback(err)
-    }
-    const cid = new CID(1, IpldEthAccountSnapshotResolver.multicodec, hash)
-    callback(null, new IpfsBlock(value, cid))
   })
 }

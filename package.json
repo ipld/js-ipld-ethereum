@@ -1,5 +1,5 @@
 {
-  "name": "js-ipld-eth-star",
+  "name": "ipld-eth-star",
   "version": "1.0.0",
   "description": "JavaScript Implementation of All Ethereum IPLD formats",
   "main": "index.js",

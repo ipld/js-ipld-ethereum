@@ -6,6 +6,7 @@ const dagEthAccount = require('../src')
 const resolver = dagEthAccount.resolver
 const IpfsBlock = require('ipfs-block')
 const Account = require('ethereumjs-account')
+const toIpfsBlock = require('../../util/toIpfsBlock')
 
 describe('IPLD format resolver (local)', () => {
   let testIpfsBlock
@@ -20,8 +21,11 @@ describe('IPLD format resolver (local)', () => {
     const testAccount = new Account(testData)
     dagEthAccount.util.serialize(testAccount, (err, result) => {
       if (err) return done(err)
-      testIpfsBlock = new IpfsBlock(result)
-      done()
+      toIpfsBlock(resolver.multicodec, result, (err, ipfsBlock) => {
+        if (err) return done(err)
+        testIpfsBlock = ipfsBlock
+        done()
+      })
     })
   })
 

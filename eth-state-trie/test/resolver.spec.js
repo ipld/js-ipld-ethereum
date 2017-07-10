@@ -5,7 +5,6 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const async = require('async')
-const IpfsBlock = require('ipfs-block')
 const Account = require('ethereumjs-account')
 const Trie = require('merkle-patricia-tree')
 const TrieNode = require('merkle-patricia-tree/trieNode')
@@ -13,6 +12,7 @@ const isExternalLink = require('ipld-eth-trie/src/common').isExternalLink
 const multihashing = require('multihashing-async')
 const CID = require('cids')
 const ipldEthStateTrie = require('../src')
+const toIpfsBlock = require('../../util/toIpfsBlock')
 const resolver = ipldEthStateTrie.resolver
 
 describe('IPLD format resolver (local)', () => {
@@ -51,13 +51,8 @@ describe('IPLD format resolver (local)', () => {
       (cb) => populateTrie(trie, cb),
       (cb) => dumpTrieNonInlineNodes(trie, trieNodes, cb),
       (cb) => async.map(trieNodes, ipldEthStateTrie.util.serialize, cb),
-      (nodes, cb) => async.map(nodes, (s, cb) => {
-        multihashing(s, 'keccak-256', (err, hash) => {
-          if (err) {
-            return cb(err)
-          }
-          cb(null, new IpfsBlock(s, new CID(1, resolver.multicodec, hash)))
-        })
+      (nodes, cb) => async.map(nodes, (node, cb) => {
+        toIpfsBlock(resolver.multicodec, node, cb)
       }, cb)
     ], (err, result) => {
       if (err) {
