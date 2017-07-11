@@ -4,106 +4,106 @@ const waterfall = require('async/waterfall')
 const asyncify = require('async/asyncify')
 const rlp = require('rlp')
 const EthTrieNode = require('merkle-patricia-tree/trieNode')
-const trieResolver = require('./base-trie/resolver.js')
+// const createBaseTrieResolver = require('./createBaseTrieResolver.js')
+const createResolver = require('./createResolver')
 const isExternalLink = require('./isExternalLink')
 const toIpfsBlock = require('./toIpfsBlock')
 const createUtil = require('./createUtil')
 const createIsLink = require('./createIsLink')
 const cidFromEthObj = require('./cidFromEthObj')
+const cidFromHash = require('./cidFromHash')
 
 
 module.exports = createTrieResolver
 
 function createTrieResolver(multicodec, leafResolver){
-  const util = createUtil(multicodec, EthTrieNode)
-  util.deserialize = asyncify((serialized) => {
+  const baseTrie = createResolver(multicodec, EthTrieNode, mapFromEthObj)
+  baseTrie.util.deserialize = asyncify((serialized) => {
     const rawNode = rlp.decode(serialized)
     const trieNode = new EthTrieNode(rawNode)
     return trieNode
   })
 
-  const resolver = {
-    multicodec: multicodec,
-    resolve: resolve,
-    tree: tree,
-    isLink: createIsLink(resolve)
-  }
+  return baseTrie
 
-  return {
-    resolver: resolver,
-    util: util,
-  }
-
-
-  function resolve (block, path, callback) {
-    waterfall([
-      (cb) => trieResolver.resolve(multicodec, block, path, cb),
-      (result, cb) => {
-        if (isExternalLink(result.value) || result.remainderPath.length === 0) {
-          return cb(null, result)
-        }
-
-        if (!leafResolver) {
-          return cb(null, result)
-        }
-
-        // continue to resolve on leaf node
-        toIpfsBlock(multicodec, result.value, (err, block) => {
-          if (err) {
-            return cb(err)
-          }
-          leafResolver.resolve(block, result.remainderPath, cb)
-        })
-      }
-    ], callback)
-  }
-
-  function tree (block, options, callback) {
-    util.deserialize(block.data, (err, trieNode) => {
-      if (err) {
-        return callback(err)
-      }
-
-      // leaf node
-      if (leafResolver && trieNode.type === 'leaf') {
+  // create map using both baseTrie and leafResolver
+  function mapFromEthObj (trieNode, options, callback) {
+    // expand from merkle-patricia-tree using leafResolver
+    mapFromBaseTrie(trieNode, options, (err, basePaths) => {
+      if (err) return callback(err)
+      if (!leafResolver) return callback(null, basePaths)
+      // expand children
+      let paths = basePaths.slice()
+      const leafTerminatingPaths = basePaths.filter(child => Buffer.isBuffer(child.value))
+      each(leafTerminatingPaths, (child, cb) => {
         return waterfall([
-          (cb) => toIpfsBlock(multicodec, trieNode.getValue(), cb),
-          (block, cb) => leafResolver.tree(block, options, cb)
-        ], callback)
-      }
-
-      // non-leaf node
-      waterfall([
-        (cb) => trieResolver.treeFromObject(multicodec, trieNode, options, cb),
-        (result, cb) => {
-          let paths = []
-          each(result, (child, next) => {
-            if (!Buffer.isBuffer(child.value) || !leafResolver) {
-              // node is non-leaf - add as is
-              paths.push(child)
-              return next()
-            }
-
-            // node is leaf - continue to tree
-            let key = child.key
-            waterfall([
-              (cb) => toIpfsBlock(multicodec, child.value, cb),
-              (block, cb) => leafResolver.tree(block, options, cb),
-              (subpaths, cb) => {
-                paths = paths.concat(subpaths.map((p) => {
-                  p.path = key + '/' + p.path
-                }))
-                cb()
-              }
-            ], next)
-          }, (err) => {
-            if (err) {
-              return cb(err)
-            }
-            cb(null, paths)
+          (cb) => leafResolver.util.deserialize(child.value, cb),
+          (ethObj, cb) => leafResolver.resolver._mapFromEthObject(ethObj, options, cb)
+        ], (err, grandChildren) => {
+          if (err) return cb(err)
+          // add prefix to grandchildren
+          grandChildren.forEach((grandChild) => {
+            paths.push({
+              path: child.path + '/' + grandChild.path,
+              value: grandChild.value,
+            })
           })
-        }
-      ], callback)
+          cb()
+        })
+      }, (err) => {
+        if (err) return callback(err)
+        callback(null, paths)
+      })
     })
   }
+
+  // create map from merkle-patricia-tree nodes
+  function mapFromBaseTrie (trieNode, options, callback) {
+    let paths = []
+
+    if (trieNode.type === 'leaf') {
+      // leaf nodes resolve to their actual value
+      paths.push({
+        path: nibbleToPath(trieNode.getKey()),
+        value: trieNode.getValue()
+      })
+    }
+
+    each(trieNode.getChildren(), (childData, next) => {
+      const key = nibbleToPath(childData[0])
+      const value = childData[1]
+      if (EthTrieNode.isRawNode(value)) {
+        // inline child root
+        const childNode = new EthTrieNode(value)
+        paths.push({
+          path: key,
+          value: childNode
+        })
+        // inline child non-leaf subpaths
+        mapFromBaseTrie(childNode, options, (err, subtree) => {
+          if (err) return next(err)
+          subtree.forEach((path) => {
+            path.path = key + '/' + path.path
+          })
+          paths = paths.concat(subtree)
+          next()
+        })
+      } else {
+        // other nodes link by hash
+        let link = { '/': cidFromHash(multicodec, value).toBaseEncodedString() }
+        paths.push({
+          path: key,
+          value: link
+        })
+        next()
+      }
+    }, (err) => {
+      if (err) return callback(err)
+      callback(null, paths)
+    })
+  }
+}
+
+function nibbleToPath (data) {
+  return data.map((num) => num.toString(16)).join('/')
 }

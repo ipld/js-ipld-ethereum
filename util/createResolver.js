@@ -69,25 +69,9 @@ function createResolver (multicodec, EthObjClass, mapFromEthObject) {
       return callback(null, result)
     }
 
-    // // parse path
-    // const pathParts = path.split('/')
-    // const firstPart = pathParts.shift()
-    // const remainderPath = pathParts.join('/')
-
     // check tree results
     mapFromEthObject(ethObj, {}, (err, paths) => {
       if (err) return callback(err)
-
-      // const treeResult = paths.find(child => child.path === firstPart)
-      // if (!treeResult) {
-      //   const err = new Error('Path not found ("' + firstPart + '").')
-      //   return callback(err)
-      // }
-      //
-      // const result = {
-      //   value: treeResult.value,
-      //   remainderPath: remainderPath
-      // }
 
       // parse path
       const pathParts = path.split('/')
@@ -104,7 +88,8 @@ function createResolver (multicodec, EthObjClass, mapFromEthObject) {
         return callback(err)
       }
 
-      const remainderPath = path.slice(treeResult.path.length)
+      // slice off remaining path (after match and following slash)
+      const remainderPath = path.slice(treeResult.path.length + 1)
 
       const result = {
         value: treeResult.value,

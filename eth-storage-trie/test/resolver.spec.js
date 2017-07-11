@@ -114,20 +114,9 @@ describe('IPLD format resolver (local)', () => {
 })
 
 function dumpTrieNonInlineNodes (trie, fullNodes, cb) {
-  let inlineNodes = []
-  trie._walkTrie(trie.root, (root, node, key, walkController) => {
-    // skip inline nodes
-    if (contains(inlineNodes, node.raw)) return walkController.next()
+  trie._findDbNodes((nodeRef, node, key, next) => {
     fullNodes.push(node)
-    // check children for inline nodes
-    node.getChildren().forEach((child) => {
-      let value = child[1]
-      if (TrieNode.isRawNode(value)) {
-        inlineNodes.push(value)
-      }
-    })
-    // continue
-    walkController.next()
+    next()
   }, cb)
 }
 
