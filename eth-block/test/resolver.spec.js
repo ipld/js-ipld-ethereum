@@ -9,8 +9,10 @@ const IpfsBlock = require('ipfs-block')
 const EthBlockHeader = require('ethereumjs-block/header')
 const multihashing = require('multihashing-async')
 const waterfall = require('async/waterfall')
+const asyncify = require('async/asyncify')
 
 const ipldEthBlock = require('../index')
+const isExternalLink = require('../../util/isExternalLink')
 const resolver = ipldEthBlock.resolver
 
 describe('IPLD format resolver (local)', () => {
@@ -86,3 +88,105 @@ describe('IPLD format resolver (local)', () => {
     })
   })
 })
+
+describe('manual ancestor walking', () => {
+  let ethBlock1
+  let ethBlock2
+  let ethBlock3
+  let cid1
+  let cid2
+  let cid3
+
+  before((done) => {
+
+    waterfall([
+      asyncify(() => {
+        return ethBlock1 = new EthBlockHeader({
+          number: 1
+        })
+      }),
+      ipldEthBlock.util.cid,
+      asyncify((cid) => { cid1 = cid }),
+
+      asyncify(() => {
+        return ethBlock2 = new EthBlockHeader({
+          number: 2,
+          parentHash: ethBlock1.hash()
+        })
+      }),
+      ipldEthBlock.util.cid,
+      asyncify((cid) => { cid2 = cid }),
+
+      asyncify(() => {
+        return ethBlock3 = new EthBlockHeader({
+          number: 3,
+          parentHash: ethBlock2.hash()
+        })
+      }),
+      ipldEthBlock.util.cid,
+      asyncify((cid) => { cid3 = cid }),
+    ], done)
+  })
+
+  it('root path (same as get)', (done) => {
+    ipldEthBlock.resolver._resolveFromEthObject(ethBlock1, '/', (err, result) => {
+      expect(err).to.not.exist()
+
+      ipldEthBlock.util.cid(result.value, (err, cid) => {
+        expect(err).to.not.exist()
+        expect(cid).to.eql(cid1)
+        done()
+      })
+    })
+  })
+
+  it('value within 1st node scope', (done) => {
+    ipldEthBlock.resolver._resolveFromEthObject(ethBlock3, 'number', (err, result) => {
+      expect(err).to.not.exist()
+      expect(result.remainderPath).to.eql('')
+      expect(isExternalLink(result.value)).to.eql(false)
+      expect(result.value.toString('hex')).to.eql('03')
+      done()
+    })
+  })
+
+  it('value within nested scope (1 level)', (done) => {
+    ipldEthBlock.resolver._resolveFromEthObject(ethBlock3, 'parent/number', (err, result) => {
+      expect(err).to.not.exist()
+      expect(result.remainderPath).to.eql('number')
+      expect(isExternalLink(result.value)).to.eql(true)
+      expect(result.value['/']).to.eql(cid2.toBaseEncodedString())
+      ipldEthBlock.resolver._resolveFromEthObject(ethBlock2, result.remainderPath, (err, result) => {
+        expect(err).to.not.exist()
+        expect(result.remainderPath).to.eql('')
+        expect(isExternalLink(result.value)).to.eql(false)
+        expect(result.value.toString('hex')).to.eql('02')
+        done()
+      })
+    })
+  })
+
+  it('value within nested scope (1 level)', (done) => {
+    ipldEthBlock.resolver._resolveFromEthObject(ethBlock3, 'parent/parent/number', (err, result) => {
+      expect(err).to.not.exist()
+      expect(result.remainderPath).to.eql('parent/number')
+      expect(isExternalLink(result.value)).to.eql(true)
+      expect(result.value['/']).to.eql(cid2.toBaseEncodedString())
+      ipldEthBlock.resolver._resolveFromEthObject(ethBlock2, result.remainderPath, (err, result) => {
+        expect(err).to.not.exist()
+        expect(result.remainderPath).to.eql('number')
+        expect(isExternalLink(result.value)).to.eql(true)
+        expect(result.value['/']).to.eql(cid1.toBaseEncodedString())
+        ipldEthBlock.resolver._resolveFromEthObject(ethBlock1, result.remainderPath, (err, result) => {
+          expect(err).to.not.exist()
+          expect(result.remainderPath).to.eql('')
+          expect(isExternalLink(result.value)).to.eql(false)
+          expect(result.value.toString('hex')).to.eql('01')
+          done()
+        })
+      })
+    })
+  })
+})
+
+

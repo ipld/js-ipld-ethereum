@@ -13,6 +13,7 @@ const CID = require('cids')
 const ipldEthStateTrie = require('../index')
 const toIpfsBlock = require('../../util/toIpfsBlock')
 const isExternalLink = require('../../util/isExternalLink')
+const cidFromHash = require('../../util/cidFromHash')
 const resolver = ipldEthStateTrie.resolver
 
 describe('IPLD format resolver (local)', () => {
@@ -41,8 +42,8 @@ describe('IPLD format resolver (local)', () => {
 
   // setup test trie
   let trie
-  let trieNodes = []
-  let dagNodes
+  let trieNodes = {}
+  let dagNodes = {}
   before((done) => {
     trie = new Trie()
     async.waterfall([
@@ -50,9 +51,12 @@ describe('IPLD format resolver (local)', () => {
       (cb) => prepareTestExternalAccount(cb),
       (cb) => populateTrie(trie, cb),
       (cb) => dumpTrieNonInlineNodes(trie, trieNodes, cb),
-      (cb) => async.map(trieNodes, ipldEthStateTrie.util.serialize, cb),
-      (nodes, cb) => async.map(nodes, (node, cb) => {
-        toIpfsBlock(resolver.multicodec, node, cb)
+      // (cb) => logTrie(trie, cb),
+      (cb) => async.mapValues(trieNodes, (node, key, cb) => {
+        async.waterfall([
+          (cb) => ipldEthStateTrie.util.serialize(node, cb),
+          (data, cb) => toIpfsBlock(resolver.multicodec, data, cb),
+        ], cb)
       }, cb)
     ], (err, result) => {
       if (err) {
@@ -84,19 +88,32 @@ describe('IPLD format resolver (local)', () => {
 
   describe('resolver.resolve', () => {
     it('root node resolves to branch', (done) => {
-      let rootNode = dagNodes[0]
+      let rootNode = dagNodes['']
       resolver.resolve(rootNode, '0/0/0/c/0/a/0/0/codeHash', (err, result) => {
         expect(err).to.not.exist()
         let trieNode = result.value
         expect(result.remainderPath).to.eql('c/0/a/0/0/codeHash')
         expect(isExternalLink(trieNode)).to.eql(true)
+        expect(trieNode['/']).to.eql(dagNodes['0/0/0'].cid.toBaseEncodedString())
+        done()
+      })
+    })
+
+    it('neck node resolves down to c branch', (done) => {
+      let neckNode = dagNodes['0/0/0']
+      resolver.resolve(neckNode, 'c/0/a/0/0/codeHash', (err, result) => {
+        expect(err).to.not.exist()
+        let trieNode = result.value
+        expect(result.remainderPath).to.eql('0/a/0/0/codeHash')
+        expect(isExternalLink(trieNode)).to.eql(true)
+        expect(trieNode['/']).to.eql(dagNodes['0/0/0/c'].cid.toBaseEncodedString())
         done()
       })
     })
 
     it('"c" branch node resolves down to account data', (done) => {
-      let cBranchNode = dagNodes[4]
-      resolver.resolve(cBranchNode, 'c/0/a/0/0/codeHash', (err, result) => {
+      let cBranchNode = dagNodes['0/0/0/c']
+      resolver.resolve(cBranchNode, '0/a/0/0/codeHash', (err, result) => {
         expect(err).to.not.exist()
         let trieNode = result.value
         expect(result.remainderPath).to.eql('')
@@ -110,34 +127,47 @@ describe('IPLD format resolver (local)', () => {
 
   describe('resolver.tree', () => {
     it('"c" branch node lists account paths', (done) => {
-      let cBranchNode = dagNodes[4]
+      let cBranchNode = dagNodes['0/0/0/c']
       resolver.tree(cBranchNode, (err, childPaths) => {
         expect(err).to.not.exist()
         expect(Array.isArray(childPaths)).to.eql(true)
-        expect(childPaths.length).to.eql(6)
-        expect(childPaths).to.contain('balance')
+        childPaths.forEach((path) =>{
+          expect(typeof path).to.eql('string')
+        })
+        expect(childPaths.length).to.eql(7)
+        expect(childPaths).to.contain('0/a/0/0/balance')
         done()
       })
     })
   })
 })
 
+
 function dumpTrieNonInlineNodes (trie, fullNodes, cb) {
-  let inlineNodes = []
-  trie._walkTrie(trie.root, (root, node, key, walkController) => {
-    // skip inline nodes
-    if (contains(inlineNodes, node.raw)) return walkController.next()
-    fullNodes.push(node)
-    // check children for inline nodes
-    node.getChildren().forEach((child) => {
-      let value = child[1]
-      if (TrieNode.isRawNode(value)) {
-        inlineNodes.push(value)
-      }
+  trie._findDbNodes((nodeRef, node, key, next) => {
+    fullNodes[nibbleToPath(key)] = node
+    next()
+  }, cb)
+}
+
+function logTrie (trie, cb) {
+  trie._walkTrie(trie.root, (nodeRef, node, key, walkController) => {
+    console.log('node:', nibbleToPath(key), node.type, TrieNode.isRawNode(nodeRef) ? 'raw':'hashed', 'ref:'+cidFromHash('eth-state-trie', nodeRef).toBaseEncodedString())
+    var children = node.getChildren()
+    if (node.type === 'leaf') {
+      console.log(' + value')
+    }
+    children.forEach((childData, index) => {
+      var keyExtension = childData[0]
+      var childRef = childData[1]
+      console.log(' -', nibbleToPath(keyExtension), TrieNode.isRawNode(childRef) ? 'raw':'hashed', 'ref:'+cidFromHash('eth-state-trie', childRef).toBaseEncodedString())
     })
-    // continue
     walkController.next()
   }, cb)
+}
+
+function nibbleToPath (data) {
+  return data.map((num) => num.toString(16)).join('/')
 }
 
 function contains (array, item) {
