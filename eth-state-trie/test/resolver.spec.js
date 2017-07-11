@@ -134,7 +134,7 @@ describe('IPLD format resolver (local)', () => {
         childPaths.forEach((path) =>{
           expect(typeof path).to.eql('string')
         })
-        expect(childPaths.length).to.eql(7)
+        expect(childPaths.length).to.eql(9)
         expect(childPaths).to.contain('0/a/0/0/balance')
         done()
       })

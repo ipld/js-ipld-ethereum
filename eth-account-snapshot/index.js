@@ -11,15 +11,15 @@ function mapFromEthObj (account, options, callback) {
 
   // external links
 
-  // paths.push({
-  //   path: 'storage',
-  //   value: account.stateRoot
-  // })
+  paths.push({
+    path: 'storage',
+    value: { '/': cidFromHash('eth-storage-trie', account.stateRoot).toBaseEncodedString() }
+  })
 
-  // paths.push({
-  //   path: 'code',
-  //   value: account.codeHash
-  // })
+  paths.push({
+    path: 'code',
+    value: { '/': cidFromHash('raw', account.codeHash).toBaseEncodedString() }
+  })
 
   // external links as data
 
