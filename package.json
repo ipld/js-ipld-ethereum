@@ -2,7 +2,7 @@
   "name": "ipld-eth-star",
   "version": "1.4.0",
   "description": "JavaScript Implementation of All Ethereum IPLD formats",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "aegir-test",
     "test:browser": "aegir-test --env browser",
