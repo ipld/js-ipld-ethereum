@@ -35,6 +35,7 @@
     "dirty-chai": "^2.0.1"
   },
   "contributors": [
+    "David Dias <daviddias.p@gmail.com>",
     "kumavis <aaron@kumavis.me>"
   ],
   "directories": {
