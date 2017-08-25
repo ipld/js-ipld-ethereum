@@ -1,4 +1,4 @@
-# js-ipld-eth-star
+# js-ipld-ethereum
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
 [![](https://img.shields.io/badge/project-IPLD-blue.svg?style=flat-square)](http://github.com/ipld/ipld)
@@ -9,7 +9,7 @@
 ## Install
 
 ```sh
-$ npm install ipld-eth-star
+> npm install ipld-ethereum
 ```
 
 ## Usage

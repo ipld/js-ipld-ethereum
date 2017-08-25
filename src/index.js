@@ -1,11 +1,9 @@
 'use strict'
 
-module.exports = {
-  ethAccountSnapshot: require('../eth-account-snapshot'),
-  ethBlock: require('../eth-block'),
-  ethBlockList: require('../eth-block-list'),
-  ethStateTrie: require('../eth-state-trie'),
-  ethStorageTrie: require('../eth-storage-trie'),
-  ethTx: require('../eth-tx'),
-  ethTxTrie: require('../eth-tx-trie')
-}
+exports.ethAccountSnapshot = require('../eth-account-snapshot')
+exports.ethBlock = require('../eth-block')
+exports.ethBlockList = require('../eth-block-list')
+exports.ethStateTrie = require('../eth-state-trie')
+exports.ethStorageTrie = require('../eth-storage-trie')
+exports.ethTx = require('../eth-tx')
+exports.ethTxTrie = require('../eth-tx-trie')
