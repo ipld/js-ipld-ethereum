@@ -2,6 +2,7 @@
 const EthAccount = require('ethereumjs-account')
 const createResolver = require('../util/createResolver')
 const cidFromHash = require('../util/cidFromHash')
+const emptyCodeHash = require('../util/emptyCodeHash')
 
 module.exports = createResolver('eth-account-snapshot', EthAccount, mapFromEthObj)
 
@@ -16,10 +17,18 @@ function mapFromEthObj (account, options, callback) {
     value: { '/': cidFromHash('eth-storage-trie', account.stateRoot).toBaseEncodedString() }
   })
 
-  paths.push({
-    path: 'code',
-    value: { '/': cidFromHash('raw', account.codeHash).toBaseEncodedString() }
-  })
+  // resolve immediately if empty, otherwise link to code
+  if (emptyCodeHash.equals(account.codeHash)) {
+    paths.push({
+      path: 'code',
+      value: Buffer.from(''),
+    })
+  } else {
+    paths.push({
+      path: 'code',
+      value: { '/': cidFromHash('raw', account.codeHash).toBaseEncodedString() }
+    })
+  }
 
   // external links as data
 

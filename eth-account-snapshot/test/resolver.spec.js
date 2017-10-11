@@ -7,13 +7,14 @@ const resolver = dagEthAccount.resolver
 const IpfsBlock = require('ipfs-block')
 const Account = require('ethereumjs-account')
 const toIpfsBlock = require('../../util/toIpfsBlock')
+const emptyCodeHash = require('../../util/emptyCodeHash')
 
 describe('IPLD format resolver (local)', () => {
   let testIpfsBlock
   let testData = {
     nonce: new Buffer('02', 'hex'),
     balance: new Buffer('04a817c800', 'hex'),
-    codeHash: new Buffer('abcd04a817c80004a817c80004a817c80004a817c80004a817c80004a817c800', 'hex'),
+    codeHash: emptyCodeHash,
     stateRoot: new Buffer('012304a817c80004a817c80004a817c80004a817c80004a817c80004a817c800', 'hex')
   }
 
@@ -38,6 +39,15 @@ describe('IPLD format resolver (local)', () => {
       resolver.resolve(testIpfsBlock, 'nonce', (err, result) => {
         expect(err).to.not.exist
         expect(result.value.toString('hex')).to.equal(testData.nonce.toString('hex'))
+      })
+    })
+
+    it('resolves empty code', () => {
+      resolver.resolve(testIpfsBlock, 'code', (err, result) => {
+        expect(err).to.not.exist
+        expect(result.remainderPath).to.equal('')
+        expect(Buffer.isBuffer(result.value)).to.equal(true)
+        expect(result.value.length).to.equal(0)
       })
     })
   })
