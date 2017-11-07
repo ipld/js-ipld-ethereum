@@ -1,5 +1,7 @@
 ### module specific
 package-lock.json
+yarn.lock
+docs
 dist
 
 
