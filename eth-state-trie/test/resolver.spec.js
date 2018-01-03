@@ -10,10 +10,10 @@ const Trie = require('merkle-patricia-tree')
 const TrieNode = require('merkle-patricia-tree/trieNode')
 const multihashing = require('multihashing-async')
 const CID = require('cids')
+const cidFromHash = require('eth-hash-to-cid')
 const ipldEthStateTrie = require('../index')
 const toIpfsBlock = require('../../util/toIpfsBlock')
 const isExternalLink = require('../../util/isExternalLink')
-const cidFromHash = require('../../util/cidFromHash')
 const resolver = ipldEthStateTrie.resolver
 
 describe('IPLD format resolver (local)', () => {

@@ -1,7 +1,7 @@
 'use strict'
 const EthAccount = require('ethereumjs-account')
+const cidFromHash = require('eth-hash-to-cid')
 const createResolver = require('../util/createResolver')
-const cidFromHash = require('../util/cidFromHash')
 const emptyCodeHash = require('../util/emptyCodeHash')
 
 module.exports = createResolver('eth-account-snapshot', EthAccount, mapFromEthObj)

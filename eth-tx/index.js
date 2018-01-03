@@ -1,7 +1,6 @@
 'use strict'
 const EthTx = require('ethereumjs-tx')
 const createResolver = require('../util/createResolver')
-const cidFromHash = require('../util/cidFromHash')
 
 module.exports = createResolver('eth-tx', EthTx, mapFromEthObj)
 

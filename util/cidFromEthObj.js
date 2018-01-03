@@ -1,5 +1,5 @@
 'use strict'
-const cidFromHash = require('./cidFromHash')
+const cidFromHash = require('eth-hash-to-cid')
 
 module.exports = cidFromEthObj
 

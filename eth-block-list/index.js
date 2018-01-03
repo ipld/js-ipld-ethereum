@@ -5,9 +5,9 @@ const asyncify = require('async/asyncify')
 const RLP = require('rlp')
 const EthBlockHead = require('ethereumjs-block/header')
 const multihash = require('multihashing-async')
+const cidFromHash = require('eth-hash-to-cid')
 const ethBlockResolver = require('../eth-block').resolver
 const createResolver = require('../util/createResolver')
-const cidFromHash = require('../util/cidFromHash')
 
 const ethBlockListResolver = createResolver('eth-block-list', undefined, mapFromEthObj)
 const util = ethBlockListResolver.util
