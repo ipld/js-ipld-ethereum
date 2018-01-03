@@ -4,6 +4,7 @@ const waterfall = require('async/waterfall')
 const asyncify = require('async/asyncify')
 const rlp = require('rlp')
 const EthTrieNode = require('merkle-patricia-tree/trieNode')
+const cidFromHash = require('eth-hash-to-cid')
 // const createBaseTrieResolver = require('./createBaseTrieResolver.js')
 const createResolver = require('./createResolver')
 const isExternalLink = require('./isExternalLink')
@@ -11,7 +12,6 @@ const toIpfsBlock = require('./toIpfsBlock')
 const createUtil = require('./createUtil')
 const createIsLink = require('./createIsLink')
 const cidFromEthObj = require('./cidFromEthObj')
-const cidFromHash = require('./cidFromHash')
 
 
 module.exports = createTrieResolver

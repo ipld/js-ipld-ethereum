@@ -1,7 +1,7 @@
 'use strict'
 const EthBlockHeader = require('ethereumjs-block/header')
+const cidFromHash = require('eth-hash-to-cid')
 const createResolver = require('../util/createResolver')
-const cidFromHash = require('../util/cidFromHash')
 
 module.exports = createResolver('eth-block', EthBlockHeader, mapFromEthObj)
 
