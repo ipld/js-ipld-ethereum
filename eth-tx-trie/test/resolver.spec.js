@@ -3,12 +3,10 @@
 
 const expect = require('chai').expect
 const async = require('async')
-const IpfsBlock = require('ipfs-block')
 const EthBlock = require('ethereumjs-block')
 const EthTx = require('ethereumjs-tx')
 const Trie = require('merkle-patricia-tree')
 const ipldEthStateTrie = require('../index')
-const toIpfsBlock = require('../../util/toIpfsBlock')
 const isExternalLink = require('../../util/isExternalLink')
 const resolver = ipldEthStateTrie.resolver
 
@@ -23,10 +21,7 @@ describe('IPLD format resolver (local)', () => {
     async.waterfall([
       (cb) => populateTrie(cb),
       (cb) => dumpTrieDbNodes(trie, trieNodes, cb),
-      (cb) => async.map(trieNodes, ipldEthStateTrie.util.serialize, cb),
-      (nodes, cb) => async.map(nodes, (node, cb) => {
-        toIpfsBlock(resolver.multicodec, node, cb)
-      }, cb)
+      (cb) => async.map(trieNodes, ipldEthStateTrie.util.serialize, cb)
     ], (err, result) => {
       if (err) return done(err)
       dagNodes = result

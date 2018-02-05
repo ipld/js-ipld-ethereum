@@ -12,7 +12,6 @@ const multihashing = require('multihashing-async')
 const CID = require('cids')
 const cidFromHash = require('eth-hash-to-cid')
 const ipldEthStateTrie = require('../index')
-const toIpfsBlock = require('../../util/toIpfsBlock')
 const isExternalLink = require('../../util/isExternalLink')
 const resolver = ipldEthStateTrie.resolver
 
@@ -53,10 +52,7 @@ describe('IPLD format resolver (local)', () => {
       (cb) => dumpTrieNonInlineNodes(trie, trieNodes, cb),
       // (cb) => logTrie(trie, cb),
       (cb) => async.mapValues(trieNodes, (node, key, cb) => {
-        async.waterfall([
-          (cb) => ipldEthStateTrie.util.serialize(node, cb),
-          (data, cb) => toIpfsBlock(resolver.multicodec, data, cb),
-        ], cb)
+        ipldEthStateTrie.util.serialize(node, cb)
       }, cb)
     ], (err, result) => {
       if (err) {
@@ -82,6 +78,16 @@ describe('IPLD format resolver (local)', () => {
     })
   }
 
+  function cid (data, cb) {
+    multihashing(data, 'keccak-256', (err, hash) => {
+      if (err) {
+        return cb(err)
+      }
+      const cid = new CID(1, resolver.multicodec, hash)
+      cb(null, cid)
+    })
+  }
+
   it('multicodec is eth-state-trie', () => {
     expect(resolver.multicodec).to.equal('eth-state-trie')
   })
@@ -94,8 +100,11 @@ describe('IPLD format resolver (local)', () => {
         let trieNode = result.value
         expect(result.remainderPath).to.eql('c/0/a/0/0/codeHash')
         expect(isExternalLink(trieNode)).to.eql(true)
-        expect(trieNode['/']).to.eql(dagNodes['0/0/0'].cid.toBaseEncodedString())
-        done()
+        cid(dagNodes['0/0/0'], (err, cid) => {
+          expect(err).to.not.exist()
+          expect(trieNode['/']).to.eql(cid.toBaseEncodedString())
+          done()
+        })
       })
     })
 
@@ -106,8 +115,11 @@ describe('IPLD format resolver (local)', () => {
         let trieNode = result.value
         expect(result.remainderPath).to.eql('0/a/0/0/codeHash')
         expect(isExternalLink(trieNode)).to.eql(true)
-        expect(trieNode['/']).to.eql(dagNodes['0/0/0/c'].cid.toBaseEncodedString())
-        done()
+        cid(dagNodes['0/0/0/c'], (err, cid) => {
+          expect(err).to.not.exist()
+          expect(trieNode['/']).to.eql(cid.toBaseEncodedString())
+          done()
+        })
       })
     })
 

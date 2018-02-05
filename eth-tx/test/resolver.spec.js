@@ -2,14 +2,12 @@
 'use strict'
 
 const expect = require('chai').expect
-const IpfsBlock = require('ipfs-block')
 const Transaction = require('ethereumjs-tx')
-const toIpfsBlock = require('../../util/toIpfsBlock')
 const dagEthBlock = require('../index')
 const resolver = dagEthBlock.resolver
 
 describe('IPLD format resolver (local)', () => {
-  let testIpfsBlock
+  let testIpfsBlob
   let testData = {
     nonce: new Buffer('01', 'hex'),
     gasPrice: new Buffer('04a817c800', 'hex'),
@@ -26,11 +24,8 @@ describe('IPLD format resolver (local)', () => {
     const testTx = new Transaction(testData)
     dagEthBlock.util.serialize(testTx, (err, result) => {
       if (err) return done(err)
-      toIpfsBlock(resolver.multicodec, result, (err, ipfsBlock) => {
-        if (err) return done(err)
-        testIpfsBlock = ipfsBlock
-        done()
-      })
+      testIpfsBlob = result
+      done()
     })
   })
 
@@ -40,7 +35,7 @@ describe('IPLD format resolver (local)', () => {
 
   describe('resolver.resolve', () => {
     it('path within scope', () => {
-      resolver.resolve(testIpfsBlock, 'nonce', (err, result) => {
+      resolver.resolve(testIpfsBlob, 'nonce', (err, result) => {
         expect(err).to.not.exist()
         expect(result.value.toString('hex')).to.equal(testData.nonce.toString('hex'))
         // expect(result.value).to.equal(testData.nonce.toString('hex'))
@@ -50,7 +45,7 @@ describe('IPLD format resolver (local)', () => {
 
   describe('resolver.resolve', () => {
     it('resolver.tree', () => {
-      resolver.tree(testIpfsBlock, (err, paths) => {
+      resolver.tree(testIpfsBlob, (err, paths) => {
         expect(err).to.not.exist()
         expect(typeof paths).to.eql('object')
         // expect(Array.isArray(paths)).to.eql(true)
