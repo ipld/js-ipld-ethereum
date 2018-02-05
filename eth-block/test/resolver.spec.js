@@ -5,7 +5,6 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const CID = require('cids')
-const IpfsBlock = require('ipfs-block')
 const EthBlockHeader = require('ethereumjs-block/header')
 const multihashing = require('multihashing-async')
 const waterfall = require('async/waterfall')
@@ -16,7 +15,7 @@ const isExternalLink = require('../../util/isExternalLink')
 const resolver = ipldEthBlock.resolver
 
 describe('IPLD format resolver (local)', () => {
-  let testIpfsBlock
+  let testBlob
   let testData = {
     //                            12345678901234567890123456789012
     parentHash: new Buffer('0100000000000000000000000000000000000000000000000000000000000000', 'hex'),
@@ -45,7 +44,7 @@ describe('IPLD format resolver (local)', () => {
         if (err) {
           return cb(err)
         }
-        testIpfsBlock = new IpfsBlock(serialized, new CID(hash))
+        testBlob = serialized
         cb()
       })
     ], done)
@@ -70,7 +69,7 @@ describe('IPLD format resolver (local)', () => {
 
   describe('resolver.resolve', () => {
     it('path within scope', () => {
-      resolver.resolve(testIpfsBlock, 'number', (err, result) => {
+      resolver.resolve(testBlob, 'number', (err, result) => {
         expect(err).not.to.exist()
         expect(result.value.toString('hex')).to.equal(testData.number.toString('hex'))
       })
@@ -78,7 +77,7 @@ describe('IPLD format resolver (local)', () => {
   })
 
   it('resolver.tree', () => {
-    resolver.tree(testIpfsBlock, (err, paths) => {
+    resolver.tree(testBlob, (err, paths) => {
       expect(err).not.to.exist()
       expect(Array.isArray(paths)).to.eql(true)
       expect(paths.length).to.eql(20)

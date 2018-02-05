@@ -27,7 +27,7 @@ function createResolver (multicodec, EthObjClass, mapFromEthObject) {
    * are option (i.e. nestness)
    */
 
-  function tree (ipfsBlock, options, callback) {
+  function tree (binaryBlob, options, callback) {
     // parse arguments
     if (typeof options === 'function') {
       callback = options
@@ -38,7 +38,7 @@ function createResolver (multicodec, EthObjClass, mapFromEthObject) {
     }
 
     waterfall([
-      (cb) => util.deserialize(ipfsBlock.data, cb),
+      (cb) => util.deserialize(binaryBlob, cb),
       (ethObj, cb) => treeFromEthObject(ethObj, options, cb)
     ], callback)
   }
@@ -51,13 +51,13 @@ function createResolver (multicodec, EthObjClass, mapFromEthObject) {
   }
 
   /*
-   * resolve: receives a path and a ipfsBlock and returns the value on path,
-   * throw if not possible. `ipfsBlock` is an IPFS Block instance (contains data + key)
+   * resolve: receives a path and a binary blob and returns the value on path,
+   * throw if not possible. `binaryBlob`` is an Ethereum binary block.
    */
 
-  function resolve (ipfsBlock, path, callback) {
+  function resolve (binaryBlob, path, callback) {
     waterfall([
-      (cb) => util.deserialize(ipfsBlock.data, cb),
+      (cb) => util.deserialize(binaryBlob, cb),
       (ethObj, cb) => resolveFromEthObject(ethObj, path, cb)
     ], callback)
   }
