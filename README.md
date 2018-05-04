@@ -6,6 +6,10 @@
 
 > JavaScript Implementation of the IPLD format - Ethereum Block
 
+## Lead Maintainer
+
+[@kumavis](https://github.com/kumavis)
+
 ## Install
 
 ```sh
@@ -15,10 +19,6 @@
 ## Usage
 
 TBD
-
-## Maintainers
-
-- [@kumavis](https://github.com/kumavis)
 
 ## Contribute
 
