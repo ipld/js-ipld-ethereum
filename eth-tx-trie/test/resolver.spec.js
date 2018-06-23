@@ -93,6 +93,10 @@ describe('IPLD format resolver (local)', () => {
     expect(resolver.multicodec).to.equal('eth-tx-trie')
   })
 
+  it('defaultHashAlg is keccak-256', () => {
+    expect(resolver.defaultHashAlg).to.equal('keccak-256')
+  })
+
   describe('resolver.resolve', () => {
     it('root node resolving first tx value', (done) => {
       let rootNode = dagNodes[0]

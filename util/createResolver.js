@@ -9,6 +9,7 @@ function createResolver (multicodec, EthObjClass, mapFromEthObject) {
   const util = createUtil(multicodec, EthObjClass)
   const resolver = {
     multicodec: multicodec,
+    defaultHashAlg: 'keccak-256',
     resolve: resolve,
     tree: tree,
     isLink: createIsLink(resolve),

@@ -33,6 +33,10 @@ describe('IPLD format resolver (local)', () => {
     expect(resolver.multicodec).to.equal('eth-tx')
   })
 
+  it('defaultHashAlg is keccak-256', () => {
+    expect(resolver.defaultHashAlg).to.equal('keccak-256')
+  })
+
   describe('resolver.resolve', () => {
     it('path within scope', () => {
       resolver.resolve(testIpfsBlob, 'nonce', (err, result) => {
