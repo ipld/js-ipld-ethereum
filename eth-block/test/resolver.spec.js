@@ -54,6 +54,10 @@ describe('IPLD format resolver (local)', () => {
     expect(resolver.multicodec).to.equal('eth-block')
   })
 
+  it('defaultHashAlg is keccak-256', () => {
+    expect(resolver.defaultHashAlg).to.equal('keccak-256')
+  })
+
   it('can parse the cid', (done) => {
     const testEthBlock = new EthBlockHeader(testData)
     ipldEthBlock.util.cid(testEthBlock, (err, cid) => {
