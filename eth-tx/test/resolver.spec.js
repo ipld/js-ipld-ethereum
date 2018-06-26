@@ -5,6 +5,8 @@ const expect = require('chai').expect
 const Transaction = require('ethereumjs-tx')
 const dagEthBlock = require('../index')
 const resolver = dagEthBlock.resolver
+const util = dagEthBlock.util
+const multihash = require('multihashes')
 
 describe('IPLD format resolver (local)', () => {
   let testIpfsBlob
@@ -55,5 +57,33 @@ describe('IPLD format resolver (local)', () => {
         // expect(Array.isArray(paths)).to.eql(true)
       })
     })
+  })
+
+  describe('util', () => {
+    it('create CID, no options', (done) => {
+      const testTx = new Transaction(testData)
+      util.cid(testTx, (err, cid) => {
+        expect(err).to.not.exist()
+        expect(cid.version).to.equal(1)
+        expect(cid.codec).to.equal('eth-tx')
+        expect(cid.multihash).to.exist()
+        const mh = multihash.decode(cid.multihash)
+        expect(mh.name).to.equal('keccak-256')
+        done()
+      })
+    })
+
+    it('create CID, empty options', (done) => {
+      const testTx = new Transaction(testData)
+      util.cid(testTx, {}, (err, cid) => {
+        expect(err).to.not.exist()
+        expect(cid.version).to.equal(1)
+        expect(cid.codec).to.equal('eth-tx')
+        expect(cid.multihash).to.exist()
+        const mh = multihash.decode(cid.multihash)
+        expect(mh.name).to.equal('keccak-256')
+        done()
+      })
+    })  
   })
 })

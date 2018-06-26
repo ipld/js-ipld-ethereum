@@ -7,6 +7,6 @@ function createUtil (multicodec, EthObjClass) {
   return {
     deserialize: asyncify((serialized) => new EthObjClass(serialized)),
     serialize: asyncify((ethObj) => ethObj.serialize()),
-    cid: asyncify((ethObj) => cidFromEthObj(multicodec, ethObj))
+    cid: asyncify((ethObj, options) => cidFromEthObj(multicodec, ethObj))
   }
 }
