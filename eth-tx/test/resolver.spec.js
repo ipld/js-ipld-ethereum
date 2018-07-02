@@ -85,5 +85,18 @@ describe('IPLD format resolver (local)', () => {
         done()
       })
     })  
+
+    it('create CID, hashAlg', (done) => {
+      const testTx = new Transaction(testData)
+      util.cid(testTx, { hashAlg: 'keccak-512' }, (err, cid) => {
+        expect(err).to.not.exist()
+        expect(cid.version).to.equal(1)
+        expect(cid.codec).to.equal('eth-tx')
+        expect(cid.multihash).to.exist()
+        const mh = multihash.decode(cid.multihash)
+        expect(mh.name).to.equal('keccak-512')
+        done()
+      })
+    })  
   })
 })
