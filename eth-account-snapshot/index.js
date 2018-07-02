@@ -1,6 +1,6 @@
 'use strict'
 const EthAccount = require('ethereumjs-account')
-const cidFromHash = require('eth-hash-to-cid')
+const cidFromHash = require('../util/cidFromHash')
 const createResolver = require('../util/createResolver')
 const emptyCodeHash = require('../util/emptyCodeHash')
 
