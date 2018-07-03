@@ -7,6 +7,7 @@ const expect = chai.expect
 const CID = require('cids')
 const EthBlockHeader = require('ethereumjs-block/header')
 const multihashing = require('multihashing-async')
+const multihash = require('multihashes')
 const waterfall = require('async/waterfall')
 const asyncify = require('async/asyncify')
 
@@ -16,6 +17,7 @@ const resolver = ipldEthBlock.resolver
 
 describe('IPLD format resolver (local)', () => {
   let testBlob
+  let testEthBlock
   let testData = {
     //                            12345678901234567890123456789012
     parentHash: new Buffer('0100000000000000000000000000000000000000000000000000000000000000', 'hex'),
@@ -36,7 +38,7 @@ describe('IPLD format resolver (local)', () => {
   }
 
   before((done) => {
-    const testEthBlock = new EthBlockHeader(testData)
+    testEthBlock = new EthBlockHeader(testData)
 
     waterfall([
       (cb) => ipldEthBlock.util.serialize(testEthBlock, cb),
@@ -59,7 +61,6 @@ describe('IPLD format resolver (local)', () => {
   })
 
   it('can parse the cid', (done) => {
-    const testEthBlock = new EthBlockHeader(testData)
     ipldEthBlock.util.cid(testEthBlock, (err, cid) => {
       expect(err).not.to.exist()
       let encodedCid = cid.toBaseEncodedString()
@@ -87,6 +88,44 @@ describe('IPLD format resolver (local)', () => {
       expect(paths.length).to.eql(20)
       paths.forEach((path) => {
         expect(typeof path).to.eql('string')
+      })
+    })
+  })
+
+  describe('util', () => {
+    it('should create CID, no options', (done) => {
+      ipldEthBlock.util.cid(testEthBlock, (err, cid) => {
+        expect(err).to.not.exist()
+        expect(cid.version).to.equal(1)
+        expect(cid.codec).to.equal('eth-block')
+        expect(cid.multihash).to.exist()
+        const mh = multihash.decode(cid.multihash)
+        expect(mh.name).to.equal('keccak-256')
+        done()
+      })
+    })
+
+    it('should create CID, empty options', (done) => {
+      ipldEthBlock.util.cid(testEthBlock, {}, (err, cid) => {
+        expect(err).to.not.exist()
+        expect(cid.version).to.equal(1)
+        expect(cid.codec).to.equal('eth-block')
+        expect(cid.multihash).to.exist()
+        const mh = multihash.decode(cid.multihash)
+        expect(mh.name).to.equal('keccak-256')
+        done()
+      })
+    })
+
+    it('should create CID, hashAlg', (done) => {
+      ipldEthBlock.util.cid(testEthBlock, { hashAlg: 'keccak-512' }, (err, cid) => {
+        expect(err).to.not.exist()
+        expect(cid.version).to.equal(1)
+        expect(cid.codec).to.equal('eth-block')
+        expect(cid.multihash).to.exist()
+        const mh = multihash.decode(cid.multihash)
+        expect(mh.name).to.equal('keccak-512')
+        done()
       })
     })
   })
