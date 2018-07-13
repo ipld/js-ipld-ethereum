@@ -1,3 +1,19 @@
+<a name="2.0.1"></a>
+## [2.0.1](https://github.com/ipld/js-ipld-ethereum/compare/v2.0.0...v2.0.1) (2018-07-13)
+
+
+### Bug Fixes
+
+* implement CID options ([#21](https://github.com/ipld/js-ipld-ethereum/issues/21)) ([da25e17](https://github.com/ipld/js-ipld-ethereum/commit/da25e17))
+
+
+### Features
+
+* add defaultHashAlg ([e767312](https://github.com/ipld/js-ipld-ethereum/commit/e767312))
+* add util.cid options ([#17](https://github.com/ipld/js-ipld-ethereum/issues/17)) ([f416b43](https://github.com/ipld/js-ipld-ethereum/commit/f416b43)), closes [ipld/interface-ipld-format#40](https://github.com/ipld/interface-ipld-format/issues/40)
+
+
+
 <a name="2.0.0"></a>
 # [2.0.0](https://github.com/ipld/js-ipld-ethereum/compare/v1.4.4...v2.0.0) (2018-02-12)
 

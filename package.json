@@ -1,6 +1,6 @@
 {
   "name": "ipld-ethereum",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "JavaScript Implementation of All Ethereum IPLD formats",
   "leadMaintainer": "kumavis <aaron@kumavis.me>",
   "main": "src/index.js",
