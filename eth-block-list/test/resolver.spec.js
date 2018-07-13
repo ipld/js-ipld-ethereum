@@ -96,5 +96,42 @@ describe('IPLD format resolver (local)', () => {
         done()
       })
     })
+
+    it('should create CID, no options', (done) => {
+      dagEthBlockList.util.cid(ethBlock.uncleHeaders, (err, cid) => {
+        expect(err).to.not.exist()
+        expect(cid.version).to.equal(1)
+        expect(cid.codec).to.equal('eth-block-list')
+        expect(cid.multihash).to.exist()
+        const mh = multihash.decode(cid.multihash)
+        expect(mh.name).to.equal('keccak-256')
+        done()
+      })
+    })
+
+    it('should create CID, empty options', (done) => {
+      dagEthBlockList.util.cid(ethBlock.uncleHeaders, {}, (err, cid) => {
+        expect(err).to.not.exist()
+        expect(cid.version).to.equal(1)
+        expect(cid.codec).to.equal('eth-block-list')
+        expect(cid.multihash).to.exist()
+        const mh = multihash.decode(cid.multihash)
+        expect(mh.name).to.equal('keccak-256')
+        done()
+      })
+    })
+
+    it('should create CID, hashAlg', (done) => {
+      dagEthBlockList.util.cid(ethBlock.uncleHeaders, { hashAlg: 'keccak-512' }, (err, cid) => {
+        expect(err).to.not.exist()
+        expect(cid.version).to.equal(1)
+        expect(cid.codec).to.equal('eth-block-list')
+        expect(cid.multihash).to.exist()
+        const mh = multihash.decode(cid.multihash)
+        expect(mh.name).to.equal('keccak-512')
+        done()
+      })
+    })
+
   })
 })
