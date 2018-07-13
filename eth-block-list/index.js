@@ -19,11 +19,19 @@ util.deserialize = asyncify((serialized) => {
   const rawOmmers = RLP.decode(serialized)
   return rawOmmers.map((rawBlock) => new EthBlockHead(rawBlock))
 })
-util.cid = (blockList, callback) => {
+util.cid = (blockList, options, callback) => {
+  if (typeof options === 'function') {
+    callback = options
+    options = {}
+  }
+  options = options || {}
+  const hashAlg = options.hashAlg || 'keccak-256'
+  const version = typeof options.version === 'undefined' ? 1 : options.version
+
   waterfall([
     (cb) => util.serialize(blockList, cb),
-    (data, cb) => multihash.digest(data, 'keccak-256', cb),
-    asyncify((mhash) => cidFromHash('eth-block-list', mhash))
+    (data, cb) => multihash.digest(data, hashAlg, cb),
+    asyncify((mhash) => cidFromHash('eth-block-list', mhash, options))
   ], callback)
 }
 
