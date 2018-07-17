@@ -8,7 +8,7 @@
 
 ## Lead Maintainer
 
-[@kumavis](https://github.com/kumavis)
+[Volker Mische](https://github.com/vmx)
 
 ## Install
 

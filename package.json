@@ -2,7 +2,7 @@
   "name": "ipld-ethereum",
   "version": "2.0.1",
   "description": "JavaScript Implementation of All Ethereum IPLD formats",
-  "leadMaintainer": "kumavis <aaron@kumavis.me>",
+  "leadMaintainer": "Volker Mische <volker.mische@gmail.com>",
   "main": "src/index.js",
   "scripts": {
     "test": "aegir test",
