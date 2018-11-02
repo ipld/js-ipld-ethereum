@@ -81,7 +81,7 @@ function createResolver (multicodec, EthObjClass, mapFromEthObject) {
       // only match whole path chunks
       matches = matches.filter((child) => child.path.split('/').every((part, index) => part === pathParts[index]))
       // take longest match
-      const sortedMatches = matches.sort((a, b) => a.path.length < b.path.length)
+      const sortedMatches = matches.sort((a, b) => b.path.length - a.path.length)
       const treeResult = sortedMatches[0]
 
       if (!treeResult) {
