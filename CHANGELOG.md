@@ -1,3 +1,14 @@
+<a name="2.0.2"></a>
+## [2.0.2](https://github.com/ipld/js-ipld-ethereum/compare/v2.0.1...v2.0.2) (2018-11-07)
+
+
+### Bug Fixes
+
+* sorting function needs to return an integer ([662d8ec](https://github.com/ipld/js-ipld-ethereum/commit/662d8ec))
+* **package:** update ipfs-block to version 0.8.0 ([7013beb](https://github.com/ipld/js-ipld-ethereum/commit/7013beb))
+
+
+
 <a name="2.0.1"></a>
 ## [2.0.1](https://github.com/ipld/js-ipld-ethereum/compare/v2.0.0...v2.0.1) (2018-07-13)
 
