@@ -1,6 +1,6 @@
 {
   "name": "ipld-ethereum",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "JavaScript Implementation of All Ethereum IPLD formats",
   "leadMaintainer": "Volker Mische <volker.mische@gmail.com>",
   "main": "src/index.js",
@@ -42,6 +42,7 @@
     "Richard Schneider <makaretu@gmail.com>",
     "Victor Bjelkholm <victorbjelkholm@gmail.com>",
     "Volker Mische <volker.mische@gmail.com>",
+    "greenkeeper[bot] <greenkeeper[bot]@users.noreply.github.com>",
     "harrshasri <35241544+harrshasri@users.noreply.github.com>",
     "kumavis <aaron@kumavis.me>"
   ],
