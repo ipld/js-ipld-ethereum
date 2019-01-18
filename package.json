@@ -1,6 +1,6 @@
 {
   "name": "ipld-ethereum",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "JavaScript Implementation of All Ethereum IPLD formats",
   "leadMaintainer": "Volker Mische <volker.mische@gmail.com>",
   "main": "src/index.js",
@@ -38,6 +38,7 @@
     "dirty-chai": "^2.0.1"
   },
   "contributors": [
+    "Alan Shaw <alan.shaw@protocol.ai>",
     "David Dias <daviddias.p@gmail.com>",
     "Richard Schneider <makaretu@gmail.com>",
     "Victor Bjelkholm <victorbjelkholm@gmail.com>",
