@@ -1,70 +1,31 @@
 'use strict'
 const EthAccount = require('ethereumjs-account')
+const multicodec = require('multicodec')
+
 const cidFromHash = require('../util/cidFromHash')
 const createResolver = require('../util/createResolver')
 const emptyCodeHash = require('../util/emptyCodeHash')
 
-module.exports = createResolver('eth-account-snapshot', EthAccount, mapFromEthObj)
+const deserialize = (serialized) => {
+  const ethObj = new EthAccount(serialized)
 
-
-function mapFromEthObj (account, options, callback) {
-  const paths = []
-
-  // external links
-
-  paths.push({
-    path: 'storage',
-    value: { '/': cidFromHash('eth-storage-trie', account.stateRoot).toBaseEncodedString() }
-  })
-
-  // resolve immediately if empty, otherwise link to code
-  if (emptyCodeHash.equals(account.codeHash)) {
-    paths.push({
-      path: 'code',
-      value: Buffer.from(''),
-    })
-  } else {
-    paths.push({
-      path: 'code',
-      value: { '/': cidFromHash('raw', account.codeHash).toBaseEncodedString() }
-    })
+  const deserialized = {
+    balance: ethObj.balance,
+    code: emptyCodeHash.equals(ethObj.codeHash)
+      ? Buffer.alloc(0)
+      : cidFromHash(multicodec.RAW, ethObj.codeHash),
+    codeHash: ethObj.codeHash,
+    isEmpty: ethObj.isEmpty(),
+    isContract: ethObj.isContract(),
+    nonce: ethObj.nonce,
+    stateRoot: ethObj.stateRoot,
+    storage: cidFromHash(multicodec.ETH_STORAGE_TRIE, ethObj.stateRoot),
+    _ethObj: ethObj
   }
 
-  // external links as data
+  Object.defineProperty(deserialized, '_ethObj', { enumerable: false })
 
-  paths.push({
-    path: 'stateRoot',
-    value: account.stateRoot
-  })
-
-  paths.push({
-    path: 'codeHash',
-    value: account.codeHash
-  })
-
-  // internal data
-
-  paths.push({
-    path: 'nonce',
-    value: account.nonce
-  })
-
-  paths.push({
-    path: 'balance',
-    value: account.balance
-  })
-
-  // helpers
-
-  paths.push({
-    path: 'isEmpty',
-    value: account.isEmpty()
-  })
-
-  paths.push({
-    path: 'isContract',
-    value: account.isContract()
-  })
-
-  callback(null, paths)
+  return deserialized
 }
+
+module.exports = createResolver(multicodec.ETH_ACCOUNT_SNAPSHOT, deserialize)

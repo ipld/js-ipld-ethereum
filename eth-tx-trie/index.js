@@ -1,9 +1,10 @@
 'use strict'
-/* eslint max-nested-callbacks: ["error", 5] */
+const multicodec = require('multicodec')
 
 const ethTxResolver = require('../eth-tx')
 const createTrieResolver = require('../util/createTrieResolver')
 
-const ethTxTrieResolver = createTrieResolver('eth-tx-trie', ethTxResolver)
+const ethTxTrieResolver = createTrieResolver(
+  multicodec.ETH_TX_TRIE, ethTxResolver)
 
 module.exports = ethTxTrieResolver

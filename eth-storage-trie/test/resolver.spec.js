@@ -1,124 +1,151 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('chai').expect
-const async = require('async')
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
+const CID = require('cids')
 const Trie = require('merkle-patricia-tree')
-const TrieNode = require('merkle-patricia-tree/trieNode')
+const multicodec = require('multicodec')
+const promisify = require('promisify-es6')
 const ipldEthStateTrie = require('../index')
-const isExternalLink = require('../../util/isExternalLink')
 const resolver = ipldEthStateTrie.resolver
 
 describe('IPLD format resolver (local)', () => {
   // setup test trie
-  let trie
-  let trieNodes = []
   let dagNodes
-  before((done) => {
-    trie = new Trie()
-    async.waterfall([
-      (cb) => populateTrie(trie, cb),
-      (cb) => dumpTrieNonInlineNodes(trie, trieNodes, cb),
-      (cb) => async.map(trieNodes, ipldEthStateTrie.util.serialize, cb)
-    ], (err, result) => {
-      if (err) return done(err)
-      dagNodes = result
-      done()
+  before(async () => {
+    const trie = await populateTrie()
+    const trieNodes = await dumpTrieNonInlineNodes(trie)
+    dagNodes = trieNodes.map((node) => {
+      return ipldEthStateTrie.util.serialize({ _ethObj: node })
     })
   })
 
-  function populateTrie (trie, cb) {
-    async.series([
-      (cb) => trie.put(new Buffer('000a0a00', 'hex'), new Buffer('cafe01', 'hex'), cb),
-      (cb) => trie.put(new Buffer('000a0a01', 'hex'), new Buffer('cafe02', 'hex'), cb),
-      (cb) => trie.put(new Buffer('000a0a02', 'hex'), new Buffer('cafe03', 'hex'), cb),
-      (cb) => trie.put(new Buffer('000a0b00', 'hex'), new Buffer('cafe04', 'hex'), cb),
-      (cb) => trie.put(new Buffer('000b0a00', 'hex'), new Buffer('cafe05', 'hex'), cb),
-      (cb) => trie.put(new Buffer('000b0b00', 'hex'), new Buffer('cafe06', 'hex'), cb),
-      (cb) => trie.put(new Buffer('000c0a00', 'hex'), new Buffer('cafe07', 'hex'), cb)
-    ], (err) => {
-      if (err) return cb(err)
-      cb()
-    })
+  async function populateTrie () {
+    const trie = new Trie()
+    const put = promisify(trie.put.bind(trie))
+    await put(Buffer.from('000a0a00', 'hex'), Buffer.from('cafe01', 'hex'))
+    await put(Buffer.from('000a0a01', 'hex'), Buffer.from('cafe02', 'hex'))
+    await put(Buffer.from('000a0a02', 'hex'), Buffer.from('cafe03', 'hex'))
+    await put(Buffer.from('000a0b00', 'hex'), Buffer.from('cafe04', 'hex'))
+    await put(Buffer.from('000b0a00', 'hex'), Buffer.from('cafe05', 'hex'))
+    await put(Buffer.from('000b0b00', 'hex'), Buffer.from('cafe06', 'hex'))
+    await put(Buffer.from('000c0a00', 'hex'), Buffer.from('cafe07', 'hex'))
+    return trie
   }
 
-  // function logTrie(cb){
-  //   async.each(dagNodes, (node, next) => {
-  //     let index = dagNodes.indexOf(node)
-  //     let trieNode = trieNodes[index]
-  //     resolver.tree(node, (err, paths) => {
-  //       if (err) return next(err)
-  //       let cidForHash = require('ipld-eth-trie/src/common').cidForHash
-  //       let cid = cidForHash('eth-storage-trie', trieNode.hash())
-  //       console.log(index, paths.map(path => path.path), cid.toBaseEncodedString())
-  //       next()
-  //     })
-  //   }, cb)
-  // }
-
   it('multicodec is eth-storage-trie', () => {
-    expect(resolver.multicodec).to.equal('eth-storage-trie')
+    expect(ipldEthStateTrie.codec).to.equal(multicodec.ETH_STORAGE_TRIE)
   })
 
   it('defaultHashAlg is keccak-256', () => {
-    expect(resolver.defaultHashAlg).to.equal('keccak-256')
+    expect(ipldEthStateTrie.defaultHashAlg).to.equal(multicodec.KECCAK_256)
   })
 
   describe('resolver.resolve', () => {
-    it('root node resolves to neck', (done) => {
-      let rootNode = dagNodes[0]
-      resolver.resolve(rootNode, '0/0/0/c/0/a/0/0/', (err, result) => {
-        expect(err).to.not.exist()
-        let trieNode = result.value
-        expect(result.remainderPath).to.eql('c/0/a/0/0/')
-        expect(isExternalLink(trieNode)).to.eql(true)
-        done()
-      })
+    it('root node resolves to neck', () => {
+      const rootNode = dagNodes[0]
+      const result = resolver.resolve(rootNode, '0/0/0/c/0/a/0/0/')
+      const trieNode = result.value
+      expect(result.remainderPath).to.eql('c/0/a/0/0')
+      expect(CID.isCID(trieNode)).to.be.true()
     })
 
-    it('neck node resolves "c" down to buffer', (done) => {
-      let node = dagNodes[1]
-      resolver.resolve(node, 'c/0/a/0/0/', (err, result) => {
-        expect(err).to.not.exist()
-        let trieNode = result.value
-        expect(result.remainderPath).to.eql('')
-        expect(isExternalLink(trieNode)).to.eql(false)
-        expect(Buffer.isBuffer(result.value)).to.eql(true)
-        done()
-      })
+    it('neck node resolves "c" down to buffer', () => {
+      const node = dagNodes[1]
+      const result = resolver.resolve(node, 'c/0/a/0/0/')
+      const trieNode = result.value
+      expect(result.remainderPath).to.eql('')
+      expect(CID.isCID(trieNode)).to.be.false()
+      expect(Buffer.isBuffer(result.value)).to.be.true()
     })
 
-    it('neck node resolves "b" down to branch', (done) => {
-      let node = dagNodes[1]
-      resolver.resolve(node, 'b/0/a/0/0/', (err, result) => {
-        expect(err).to.not.exist()
-        let trieNode = result.value
-        expect(result.remainderPath).to.eql('0/a/0/0/')
-        expect(isExternalLink(trieNode)).to.eql(true)
-        done()
-      })
+    it('neck node resolves "b" down to branch', () => {
+      const node = dagNodes[1]
+      const result = resolver.resolve(node, 'b/0/a/0/0/')
+      const trieNode = result.value
+      expect(result.remainderPath).to.eql('0/a/0/0')
+      expect(CID.isCID(trieNode)).to.be.true()
     })
 
-    it('neck node resolves "a" down to branch', (done) => {
-      let node = dagNodes[1]
-      resolver.resolve(node, 'a/0/a/0/0/', (err, result) => {
-        expect(err).to.not.exist()
-        let trieNode = result.value
-        expect(result.remainderPath).to.eql('0/a/0/0/')
-        expect(isExternalLink(trieNode)).to.eql(true)
-        done()
-      })
+    it('neck node resolves "a" down to branch', () => {
+      const node = dagNodes[1]
+      const result = resolver.resolve(node, 'a/0/a/0/0/')
+      const trieNode = result.value
+      expect(result.remainderPath).to.eql('0/a/0/0')
+      expect(CID.isCID(trieNode)).to.be.true()
+    })
+
+    it('resolves "a" to correct type', () => {
+      const result = resolver.resolve(dagNodes[1], 'a')
+      expect(CID.isCID(result.value)).to.be.true()
+    })
+
+    it('resolves "b" to correct type', () => {
+      const result = resolver.resolve(dagNodes[1], 'b')
+      expect(CID.isCID(result.value)).to.be.true()
+    })
+
+    it('resolves "c" to correct type', () => {
+      const result = resolver.resolve(dagNodes[1], 'c')
+      expect(CID.isCID(result.value)).to.be.false()
+      expect(typeof result.value === 'object').to.be.true()
+    })
+
+    it('resolves "c/0" to correct type', () => {
+      const result = resolver.resolve(dagNodes[1], 'c/0')
+      expect(CID.isCID(result.value)).to.be.false()
+      expect(typeof result.value === 'object').to.be.true()
+    })
+
+    it('resolves "c/0/a" to correct type', () => {
+      const result = resolver.resolve(dagNodes[1], 'c/0/a')
+      expect(CID.isCID(result.value)).to.be.false()
+      expect(typeof result.value === 'object').to.be.true()
+    })
+
+    it('resolves "c/0/a/0" to correct type', () => {
+      const result = resolver.resolve(dagNodes[1], 'c/0/a/0')
+      expect(CID.isCID(result.value)).to.be.false()
+      expect(typeof result.value === 'object').to.be.true()
+    })
+
+    it('resolves "c/0/a/0/0" to correct type', () => {
+      const result = resolver.resolve(dagNodes[1], 'c/0/a/0/0')
+      expect(CID.isCID(result.value)).to.be.false()
+      expect(typeof result.value === 'object').to.be.true()
+    })
+  })
+
+  describe('resolver.tree', () => {
+    it('returns all uncles', () => {
+      const tree = resolver.tree(dagNodes[1])
+      const paths = [...tree]
+      expect(paths).to.have.members([
+        'a',
+        'b',
+        'c',
+        'c/0',
+        'c/0/a',
+        'c/0/a/0',
+        'c/0/a/0/0'
+      ])
     })
   })
 })
 
-function dumpTrieNonInlineNodes (trie, fullNodes, cb) {
-  trie._findDbNodes((nodeRef, node, key, next) => {
-    fullNodes.push(node)
-    next()
-  }, cb)
-}
-
-function contains (array, item) {
-  return array.indexOf(item) !== -1
+function dumpTrieNonInlineNodes (trie) {
+  const fullNodes = []
+  return new Promise((resolve, reject) => {
+    trie._findDbNodes((nodeRef, node, key, next) => {
+      fullNodes.push(node)
+      next()
+    }, (err) => {
+      if (err) {
+        return reject(err)
+      }
+      return resolve(fullNodes)
+    })
+  })
 }
