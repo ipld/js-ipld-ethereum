@@ -1,108 +1,103 @@
 'use strict'
-const each = require('async/each')
-const waterfall = require('async/waterfall')
-const asyncify = require('async/asyncify')
 const rlp = require('rlp')
 const EthTrieNode = require('merkle-patricia-tree/trieNode')
 const cidFromHash = require('./cidFromHash')
-// const createBaseTrieResolver = require('./createBaseTrieResolver.js')
 const createResolver = require('./createResolver')
-const isExternalLink = require('./isExternalLink')
 const createUtil = require('./createUtil')
-const createIsLink = require('./createIsLink')
-const cidFromEthObj = require('./cidFromEthObj')
 
+// A `nibble` is an array of nested keys. So for example `[2, 1, 3]` would
+// mean an item with value `"foo"` would be in an object like this:
+// {
+//   "2": {
+//     "1": {
+//       "3": "foo"
+//     }
+//   }
+// }
+// This function converts such a nibble together with a `value` into such an
+// object. As we want to combine multiple nibbles into a single object, we
+// also pass in a `target` object where the value should be stored in.
+const addNibbleToObject = (target, nibble, value) => {
+  // Make a reference to the target object that can be changed in the course
+  // of the algorithm
+  let current = target
+  for (const [ii, entry] of nibble.entries()) {
+    // Get the key the value should be stored in
+    const key = entry.toString(16)
 
-module.exports = createTrieResolver
+    if (ii + 1 < nibble.length) {
+    // We haven't reached the last item yet
+      // There is no item with that key yet
+      if (!(key in current)) {
+        current[key] = {}
+      }
+      // Keep traversing deeper
+      current = current[key]
+    } else {
+    // Else we've reached the last item, hence adding the actual value
+      current[key] = value
+      return
+    }
+  }
+}
 
-function createTrieResolver(multicodec, leafResolver){
-  const baseTrie = createResolver(multicodec, EthTrieNode, mapFromEthObj)
-  baseTrie.util.deserialize = asyncify((serialized) => {
+const getLeafValue = (trieNode, leafResolver) => {
+  let value = trieNode.getValue()
+
+  if (leafResolver !== undefined) {
+    value = leafResolver.util.deserialize(value)
+  }
+
+  return value
+}
+
+// create map from merkle-patricia-tree nodes
+const mapFromBaseTrie = (codec, finalNode, trieNode, leafResolver) => {
+  if (trieNode.type === 'leaf') {
+    const value = getLeafValue(trieNode, leafResolver)
+    addNibbleToObject(finalNode, trieNode.getKey(), value)
+    return
+  }
+
+  trieNode.getChildren().forEach(([nibble, value]) => {
+    let valueToAdd
+    if (EthTrieNode.isRawNode(value)) {
+    // inline child root
+      const childNode = new EthTrieNode(value)
+
+      if (childNode.type === 'leaf') {
+        // Make sure the object is nested correctly
+        nibble.push(...childNode.getKey())
+        valueToAdd = getLeafValue(childNode, leafResolver)
+      } else {
+        valueToAdd = childNode
+      }
+    } else {
+    // other nodes link by hash
+      valueToAdd = cidFromHash(codec, value)
+    }
+    addNibbleToObject(finalNode, nibble, valueToAdd)
+  })
+}
+
+// The `createUtilResolver` expects a constructor with a single parameter,
+// hence wrap it in a creator function so that we can pass in the needed
+// context
+const createCustomEthTrieNode = function (codec, leafResolver) {
+  return function (serialized) {
     const rawNode = rlp.decode(serialized)
     const trieNode = new EthTrieNode(rawNode)
-    return trieNode
-  })
 
+    const finalNode = {}
+    mapFromBaseTrie(codec, finalNode, trieNode, leafResolver)
+    return finalNode
+  }
+}
+
+const createTrieResolver = (codec, leafResolver) => {
+  const customEthTrieNode = createCustomEthTrieNode(codec, leafResolver)
+  const baseTrie = createResolver(codec, customEthTrieNode)
   return baseTrie
-
-  // create map using both baseTrie and leafResolver
-  function mapFromEthObj (trieNode, options, callback) {
-    // expand from merkle-patricia-tree using leafResolver
-    mapFromBaseTrie(trieNode, options, (err, basePaths) => {
-      if (err) return callback(err)
-      if (!leafResolver) return callback(null, basePaths)
-      // expand children
-      let paths = basePaths.slice()
-      const leafTerminatingPaths = basePaths.filter(child => Buffer.isBuffer(child.value))
-      each(leafTerminatingPaths, (child, cb) => {
-        return waterfall([
-          (cb) => leafResolver.util.deserialize(child.value, cb),
-          (ethObj, cb) => leafResolver.resolver._mapFromEthObject(ethObj, options, cb)
-        ], (err, grandChildren) => {
-          if (err) return cb(err)
-          // add prefix to grandchildren
-          grandChildren.forEach((grandChild) => {
-            paths.push({
-              path: child.path + '/' + grandChild.path,
-              value: grandChild.value,
-            })
-          })
-          cb()
-        })
-      }, (err) => {
-        if (err) return callback(err)
-        callback(null, paths)
-      })
-    })
-  }
-
-  // create map from merkle-patricia-tree nodes
-  function mapFromBaseTrie (trieNode, options, callback) {
-    let paths = []
-
-    if (trieNode.type === 'leaf') {
-      // leaf nodes resolve to their actual value
-      paths.push({
-        path: nibbleToPath(trieNode.getKey()),
-        value: trieNode.getValue()
-      })
-    }
-
-    each(trieNode.getChildren(), (childData, next) => {
-      const key = nibbleToPath(childData[0])
-      const value = childData[1]
-      if (EthTrieNode.isRawNode(value)) {
-        // inline child root
-        const childNode = new EthTrieNode(value)
-        paths.push({
-          path: key,
-          value: childNode
-        })
-        // inline child non-leaf subpaths
-        mapFromBaseTrie(childNode, options, (err, subtree) => {
-          if (err) return next(err)
-          subtree.forEach((path) => {
-            path.path = key + '/' + path.path
-          })
-          paths = paths.concat(subtree)
-          next()
-        })
-      } else {
-        // other nodes link by hash
-        let link = { '/': cidFromHash(multicodec, value).toBaseEncodedString() }
-        paths.push({
-          path: key,
-          value: link
-        })
-        next()
-      }
-    }, (err) => {
-      if (err) return callback(err)
-      callback(null, paths)
-    })
-  }
 }
 
-function nibbleToPath (data) {
-  return data.map((num) => num.toString(16)).join('/')
-}
+module.exports = createTrieResolver

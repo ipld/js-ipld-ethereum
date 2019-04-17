@@ -1,8 +1,8 @@
 'use strict'
-/* eslint max-nested-callbacks: ["error", 5] */
+const multicodec = require('multicodec')
 
 const createTrieResolver = require('../util/createTrieResolver')
 
-const ethStorageTrieResolver = createTrieResolver('eth-storage-trie')
+const ethStorageTrieResolver = createTrieResolver(multicodec.ETH_STORAGE_TRIE)
 
 module.exports = ethStorageTrieResolver

@@ -1,72 +1,30 @@
 'use strict'
 const EthTx = require('ethereumjs-tx')
 const createResolver = require('../util/createResolver')
+const multicodec = require('multicodec')
 
-module.exports = createResolver('eth-tx', EthTx, mapFromEthObj)
+const deserialize = (serialized) => {
+  const ethObj = new EthTx(serialized)
 
+  const deserialized = {
+    data: ethObj.data,
+    fromAddress: ethObj.from,
+    gasLimit: ethObj.gasLimit,
+    gasPrice: ethObj.gasPrice,
+    isContractPublish: ethObj.toCreationAddress(),
+    nonce: ethObj.nonce,
+    r: ethObj.r,
+    s: ethObj.s,
+    signature: [ethObj.v, ethObj.r, ethObj.s],
+    toAddress: ethObj.to,
+    v: ethObj.v,
+    value: ethObj.value,
+    _ethObj: ethObj
+  }
 
-function mapFromEthObj (tx, options, callback) {
-  const paths = []
+  Object.defineProperty(deserialized, '_ethObj', { enumerable: false })
 
-  // external links (none)
-
-  // external links as data (none)
-
-  // internal data
-
-  paths.push({
-    path: 'nonce',
-    value: tx.nonce
-  })
-  paths.push({
-    path: 'gasPrice',
-    value: tx.gasPrice
-  })
-  paths.push({
-    path: 'gasLimit',
-    value: tx.gasLimit
-  })
-  paths.push({
-    path: 'toAddress',
-    value: tx.to
-  })
-  paths.push({
-    path: 'value',
-    value: tx.value
-  })
-  paths.push({
-    path: 'data',
-    value: tx.data
-  })
-  paths.push({
-    path: 'v',
-    value: tx.v
-  })
-  paths.push({
-    path: 'r',
-    value: tx.r
-  })
-  paths.push({
-    path: 's',
-    value: tx.s
-  })
-
-  // helpers
-
-  paths.push({
-    path: 'fromAddress',
-    value: tx.from
-  })
-
-  paths.push({
-    path: 'signature',
-    value: [tx.v, tx.r, tx.s]
-  })
-
-  paths.push({
-    path: 'isContractPublish',
-    value: tx.toCreationAddress()
-  })
-
-  callback(null, paths)
+  return deserialized
 }
+
+module.exports = createResolver(multicodec.ETH_TX, deserialize)
