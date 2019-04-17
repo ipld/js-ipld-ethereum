@@ -1,102 +1,96 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('chai').expect
+const chai = require('chai')
+chai.use(require('dirty-chai'))
+const expect = chai.expect
 const Transaction = require('ethereumjs-tx')
-const dagEthBlock = require('../index')
-const resolver = dagEthBlock.resolver
-const util = dagEthBlock.util
+const dagEthTx = require('../index')
+const resolver = dagEthTx.resolver
+const util = dagEthTx.util
 const multihash = require('multihashes')
+const multicodec = require('multicodec')
 
 describe('IPLD format resolver (local)', () => {
-  let testIpfsBlob
-  let testData = {
-    nonce: new Buffer('01', 'hex'),
-    gasPrice: new Buffer('04a817c800', 'hex'),
-    gasLimit: new Buffer('061a80', 'hex'),
-    to: new Buffer('0731729bb6624343958d05be7b1d9257a8e802e7', 'hex'),
-    value: new Buffer('1234', 'hex'),
+  const testData = {
+    nonce: Buffer.from('01', 'hex'),
+    gasPrice: Buffer.from('04a817c800', 'hex'),
+    gasLimit: Buffer.from('061a80', 'hex'),
+    to: Buffer.from('0731729bb6624343958d05be7b1d9257a8e802e7', 'hex'),
+    value: Buffer.from('1234', 'hex'),
     // signature
-    v: new Buffer('1c', 'hex'),
-    r: new Buffer('33752a492fb77aca190ba9ba356bb8c9ad22d9aaa82c10bc8fc8ccca70da1985', 'hex'),
-    s: new Buffer('6ee2a50ec62e958fa2c9e214dae7de8ab4ab9a951b621a9deb04bb1bb37dd20f', 'hex')
+    v: Buffer.from('1c', 'hex'),
+    r: Buffer.from('33752a492fb77aca190ba9ba356bb8c9ad22d9aaa82c10bc8fc8ccca70da1985', 'hex'),
+    s: Buffer.from('6ee2a50ec62e958fa2c9e214dae7de8ab4ab9a951b621a9deb04bb1bb37dd20f', 'hex')
   }
-
-  before((done) => {
-    const testTx = new Transaction(testData)
-    dagEthBlock.util.serialize(testTx, (err, result) => {
-      if (err) return done(err)
-      testIpfsBlob = result
-      done()
-    })
-  })
+  const testTx = new Transaction(testData)
+  const testTxBlob = dagEthTx.util.serialize(testTx)
 
   it('multicodec is eth-tx', () => {
-    expect(resolver.multicodec).to.equal('eth-tx')
+    expect(dagEthTx.codec).to.equal(multicodec.ETH_TX)
   })
 
   it('defaultHashAlg is keccak-256', () => {
-    expect(resolver.defaultHashAlg).to.equal('keccak-256')
+    expect(dagEthTx.defaultHashAlg).to.equal(multicodec.KECCAK_256)
   })
 
   describe('resolver.resolve', () => {
-    it('path within scope', () => {
-      resolver.resolve(testIpfsBlob, 'nonce', (err, result) => {
-        expect(err).to.not.exist()
-        expect(result.value.toString('hex')).to.equal(testData.nonce.toString('hex'))
-        // expect(result.value).to.equal(testData.nonce.toString('hex'))
-      })
+    it('path within scope', async () => {
+      const result = await resolver.resolve(testTxBlob, 'nonce')
+      expect(result.value).to.eql(testData.nonce)
     })
   })
 
-  describe('resolver.resolve', () => {
-    it('resolver.tree', () => {
-      resolver.tree(testIpfsBlob, (err, paths) => {
-        expect(err).to.not.exist()
-        expect(typeof paths).to.eql('object')
-        // expect(Array.isArray(paths)).to.eql(true)
-      })
-    })
+  it('resolver.tree', async () => {
+    const tree = resolver.tree(testTxBlob)
+    const paths = [...tree]
+    expect(paths).to.have.members([
+      'nonce',
+      'gasPrice',
+      'gasLimit',
+      'toAddress',
+      'value',
+      'data',
+      'v',
+      'r',
+      's',
+      'fromAddress',
+      'signature',
+      'signature/0',
+      'signature/1',
+      'signature/2',
+      'isContractPublish'
+    ])
   })
 
   describe('util', () => {
-    it('create CID, no options', (done) => {
-      const testTx = new Transaction(testData)
-      util.cid(testTx, (err, cid) => {
-        expect(err).to.not.exist()
-        expect(cid.version).to.equal(1)
-        expect(cid.codec).to.equal('eth-tx')
-        expect(cid.multihash).to.exist()
-        const mh = multihash.decode(cid.multihash)
-        expect(mh.name).to.equal('keccak-256')
-        done()
-      })
+    it('create CID, no options', async () => {
+      const cid = await util.cid(testTxBlob)
+      expect(cid.version).to.equal(1)
+      expect(cid.codec).to.equal('eth-tx')
+      expect(cid.multihash).to.exist()
+      const mh = multihash.decode(cid.multihash)
+      expect(mh.name).to.equal('keccak-256')
     })
 
-    it('create CID, empty options', (done) => {
-      const testTx = new Transaction(testData)
-      util.cid(testTx, {}, (err, cid) => {
-        expect(err).to.not.exist()
-        expect(cid.version).to.equal(1)
-        expect(cid.codec).to.equal('eth-tx')
-        expect(cid.multihash).to.exist()
-        const mh = multihash.decode(cid.multihash)
-        expect(mh.name).to.equal('keccak-256')
-        done()
-      })
-    })  
+    it('create CID, empty options', async () => {
+      const cid = await util.cid(testTxBlob, {})
+      expect(cid.version).to.equal(1)
+      expect(cid.codec).to.equal('eth-tx')
+      expect(cid.multihash).to.exist()
+      const mh = multihash.decode(cid.multihash)
+      expect(mh.name).to.equal('keccak-256')
+    })
 
-    it('create CID, hashAlg', (done) => {
-      const testTx = new Transaction(testData)
-      util.cid(testTx, { hashAlg: 'keccak-512' }, (err, cid) => {
-        expect(err).to.not.exist()
-        expect(cid.version).to.equal(1)
-        expect(cid.codec).to.equal('eth-tx')
-        expect(cid.multihash).to.exist()
-        const mh = multihash.decode(cid.multihash)
-        expect(mh.name).to.equal('keccak-512')
-        done()
+    it('create CID, hashAlg', async () => {
+      const cid = await util.cid(testTxBlob, {
+        hashAlg: multicodec.KECCAK_512
       })
-    })  
+      expect(cid.version).to.equal(1)
+      expect(cid.codec).to.equal('eth-tx')
+      expect(cid.multihash).to.exist()
+      const mh = multihash.decode(cid.multihash)
+      expect(mh.name).to.equal('keccak-512')
+    })
   })
 })
