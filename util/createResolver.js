@@ -6,12 +6,22 @@ const createUtil = require('../util/createUtil')
 const createResolver = (codec, EthObjClass, fieldAccess) => {
   const util = createUtil(codec, EthObjClass, fieldAccess)
 
-  /*
-   * resolve: receives a path and a binary blob and returns the value on path,
-   * throw if not possible. `binaryBlob` is CBOR encoded data.
+  /**
+   * Resolves a path within a Ethereum block.
+   *
+   * Returns the value or a link and the partial mising path. This way the
+   * IPLD Resolver can fetch the link and continue to resolve.
+   *
+   * @param {Buffer} binaryBlob - Binary representation of a Ethereum block
+   * @param {string} [path='/'] - Path that should be resolved
+   * @returns {Object} result - Result of the path it it was resolved successfully
+   * @returns {*} result.value - Value the path resolves to
+   * @returns {string} result.remainderPath - If the path resolves half-way to a
+   *   link, then the `remainderPath` is the part after the link that can be used
+   *   for further resolving.
    */
   const resolve = async (binaryBlob, path) => {
-    let node = await util.deserialize(binaryBlob)
+    let node = util.deserialize(binaryBlob)
 
     const parts = path.split('/').filter((x) => x)
     while (parts.length) {
@@ -47,8 +57,12 @@ const createResolver = (codec, EthObjClass, fieldAccess) => {
     }
   }
 
-  /*
-   * tree: returns a flattened array with paths: values of the project.
+  /**
+   * Return all available paths of a block.
+   *
+   * @generator
+   * @param {Buffer} binaryBlob - Binary representation of a Bitcoin block
+   * @yields {string} - A single path
    */
   const tree = function * (binaryBlob) {
     const node = util.deserialize(binaryBlob)

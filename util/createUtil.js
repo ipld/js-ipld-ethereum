@@ -1,5 +1,4 @@
 const CID = require('cids')
-const mergeOptions = require('merge-options')
 const multicodec = require('multicodec')
 const multihashing = require('multihashing-async')
 
@@ -9,6 +8,12 @@ const DEFAULT_HASH_ALG = multicodec.KECCAK_256
 
 const createUtil = (codec, EthObjClass, fieldAccess) => {
   return {
+    /**
+     * Deserialize Ethereum block into the internal representation.
+     *
+     * @param {Buffer} serialized - Binary representation of a Ethereum block.
+     * @returns {Object}
+     */
     deserialize: (serialized) => {
       const deserialized = new EthObjClass(serialized)
 
@@ -21,10 +26,25 @@ const createUtil = (codec, EthObjClass, fieldAccess) => {
 
       return deserialized
     },
+    /**
+     * Serialize internal representation into a binary Ethereum block.
+     *
+     * @param {Object} ethObj - Internal representation of a Bitcoin block
+     * @returns {Buffer}
+     */
     serialize: (ethObj) => ethObj.serialize(),
+    /**
+     * Calculate the CID of the binary blob.
+     *
+     * @param {Object} binaryBlob - Encoded IPLD Node.
+     * @param {Object} [userOptions] - Options to create the CID.
+     * @param {number} [userOptions.cidVersion] - CID version number. Defaults to 1.
+     * @param {string} [UserOptions.hashAlg] - Defaults to the defaultHashAlg of the format.
+     * @returns {Promise.<CID>}
+     */
     cid: async (binaryBlob, userOptions) => {
       const defaultOptions = { cidVersion: 1, hashAlg: DEFAULT_HASH_ALG}
-      const options = mergeOptions(defaultOptions, userOptions)
+      const options = Object.assign(defaultOptions, userOptions)
 
       const multihash = await multihashing(binaryBlob, options.hashAlg)
       const codecName = multicodec.print[codec]
