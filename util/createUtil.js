@@ -36,10 +36,10 @@ const createUtil = (codec, EthObjClass, fieldAccess) => {
     /**
      * Calculate the CID of the binary blob.
      *
-     * @param {Object} binaryBlob - Encoded IPLD Node.
-     * @param {Object} [userOptions] - Options to create the CID.
-     * @param {number} [userOptions.cidVersion] - CID version number. Defaults to 1.
-     * @param {string} [UserOptions.hashAlg] - Defaults to the defaultHashAlg of the format.
+     * @param {Object} binaryBlob - Encoded IPLD Node
+     * @param {Object} [userOptions] - Options to create the CID
+     * @param {number} [userOptions.cidVersion=1] - CID version number
+     * @param {string} [UserOptions.hashAlg] - Defaults to the defaultHashAlg of the format
      * @returns {Promise.<CID>}
      */
     cid: async (binaryBlob, userOptions) => {

@@ -18,7 +18,7 @@ const createResolver = (codec, EthObjClass, fieldAccess) => {
    * @returns {*} result.value - Value the path resolves to
    * @returns {string} result.remainderPath - If the path resolves half-way to a
    *   link, then the `remainderPath` is the part after the link that can be used
-   *   for further resolving.
+   *   for further resolving
    */
   const resolve = async (binaryBlob, path) => {
     let node = util.deserialize(binaryBlob)
