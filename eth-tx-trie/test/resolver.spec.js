@@ -96,17 +96,17 @@ describe('IPLD format resolver (local)', () => {
   })
 
   describe('resolver.resolve', () => {
-    it('root node resolving first tx value', async () => {
+    it('root node resolving first tx value', () => {
       const rootNode = dagNodes[0]
-      const result = await resolver.resolve(rootNode, '8/0/value')
+      const result = resolver.resolve(rootNode, '8/0/value')
       const trieNode = result.value
       expect(result.remainderPath).to.eql('0/value')
       expect(CID.isCID(trieNode)).to.be.true()
     })
 
-    it('"8" branch node resolves down to tx value', async () => {
+    it('"8" branch node resolves down to tx value', () => {
       const branchNode = dagNodes[2]
-      const result = await resolver.resolve(branchNode, '0/value')
+      const result = resolver.resolve(branchNode, '0/value')
       const trieNode = result.value
       expect(result.remainderPath).to.eql('')
       expect(CID.isCID(trieNode)).to.be.false()
@@ -117,7 +117,7 @@ describe('IPLD format resolver (local)', () => {
   })
 
   describe('resolver.tree', () => {
-    it('root has two children', async () => {
+    it('root has two children', () => {
       const rootNode = dagNodes[0]
       const tree = resolver.tree(rootNode)
       const paths = [...tree]

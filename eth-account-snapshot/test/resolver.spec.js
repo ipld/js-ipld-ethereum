@@ -29,14 +29,14 @@ describe('IPLD format resolver (local)', () => {
   })
 
   describe('resolver.resolve', () => {
-    it('path within scope', async () => {
-      const result = await resolver.resolve(testBlob, 'nonce')
+    it('path within scope', () => {
+      const result = resolver.resolve(testBlob, 'nonce')
       expect(result.value).to.eql(testData.nonce)
     })
   })
 
-  it('resolves empty code', async () => {
-    const result = await resolver.resolve(testBlob, 'code')
+  it('resolves empty code', () => {
+    const result = resolver.resolve(testBlob, 'code')
     expect(result.remainderPath).to.equal('')
     expect(Buffer.isBuffer(result.value)).to.be.true()
     expect(result.value.length).to.equal(0)

@@ -20,7 +20,7 @@ const createResolver = (codec, EthObjClass, fieldAccess) => {
    *   link, then the `remainderPath` is the part after the link that can be used
    *   for further resolving
    */
-  const resolve = async (binaryBlob, path) => {
+  const resolve = (binaryBlob, path) => {
     let node = util.deserialize(binaryBlob)
 
     const parts = path.split('/').filter((x) => x)

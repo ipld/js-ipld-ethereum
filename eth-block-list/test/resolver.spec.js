@@ -27,26 +27,26 @@ describe('IPLD format resolver (local)', () => {
   })
 
   describe('resolver.resolve', () => {
-    it('uncle #0', async () => {
-      const result = await resolver.resolve(testBlob, '0')
+    it('uncle #0', () => {
+      const result = resolver.resolve(testBlob, '0')
       expect(result.value.hash().toString('hex')).to.equal('acfa207ce9d5139b85ecfdc197f8d283fc241f95f176f008f44aab35ef1f901f')
       expect(result.remainderPath).to.equal('')
     })
 
-    it('uncle #1', async () => {
-      const result = await resolver.resolve(testBlob, '1')
+    it('uncle #1', () => {
+      const result = resolver.resolve(testBlob, '1')
       expect(result.value.hash().toString('hex')).to.equal('fe426f2eb0adc88f05ea737da1ebb79e03bca546563ad74bda7bffeb37ad4d6a')
       expect(result.remainderPath).to.equal('')
     })
 
-    it('uncle count', async () => {
-      const result = await resolver.resolve(testBlob, 'count')
+    it('uncle count', () => {
+      const result = resolver.resolve(testBlob, 'count')
       expect(result.value).to.equal(2)
       expect(result.remainderPath).to.equal('')
     })
 
-    it('resolve block data off uncle #0', async () => {
-      const result = await resolver.resolve(testBlob, '0/timestamp')
+    it('resolve block data off uncle #0', () => {
+      const result = resolver.resolve(testBlob, '0/timestamp')
       expect(result.remainderPath.length).to.equal(0)
       expect(result.value.toString('hex')).to.equal('55ba43df')
       expect(result.remainderPath).to.equal('')
@@ -54,7 +54,7 @@ describe('IPLD format resolver (local)', () => {
   })
 
   describe('resolver.tree', () => {
-    it('returns all uncles', async () => {
+    it('returns all uncles', () => {
       const tree = resolver.tree(testBlob)
       const paths = [...tree]
       expect(paths).to.have.members([

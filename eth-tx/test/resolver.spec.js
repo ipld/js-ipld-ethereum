@@ -35,13 +35,13 @@ describe('IPLD format resolver (local)', () => {
   })
 
   describe('resolver.resolve', () => {
-    it('path within scope', async () => {
-      const result = await resolver.resolve(testTxBlob, 'nonce')
+    it('path within scope', () => {
+      const result = resolver.resolve(testTxBlob, 'nonce')
       expect(result.value).to.eql(testData.nonce)
     })
   })
 
-  it('resolver.tree', async () => {
+  it('resolver.tree', () => {
     const tree = resolver.tree(testTxBlob)
     const paths = [...tree]
     expect(paths).to.have.members([

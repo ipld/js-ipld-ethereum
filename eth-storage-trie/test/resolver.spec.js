@@ -49,34 +49,34 @@ describe('IPLD format resolver (local)', () => {
   })
 
   describe('resolver.resolve', () => {
-    it('root node resolves to neck', async () => {
+    it('root node resolves to neck', () => {
       const rootNode = dagNodes[0]
-      const result = await resolver.resolve(rootNode, '0/0/0/c/0/a/0/0/')
+      const result = resolver.resolve(rootNode, '0/0/0/c/0/a/0/0/')
       const trieNode = result.value
       expect(result.remainderPath).to.eql('c/0/a/0/0')
       expect(CID.isCID(trieNode)).to.be.true()
     })
 
-    it('neck node resolves "c" down to buffer', async () => {
+    it('neck node resolves "c" down to buffer', () => {
       const node = dagNodes[1]
-      const result = await resolver.resolve(node, 'c/0/a/0/0/')
+      const result = resolver.resolve(node, 'c/0/a/0/0/')
       const trieNode = result.value
       expect(result.remainderPath).to.eql('')
       expect(CID.isCID(trieNode)).to.be.false()
       expect(Buffer.isBuffer(result.value)).to.be.true()
     })
 
-    it('neck node resolves "b" down to branch', async () => {
+    it('neck node resolves "b" down to branch', () => {
       const node = dagNodes[1]
-      const result = await resolver.resolve(node, 'b/0/a/0/0/')
+      const result = resolver.resolve(node, 'b/0/a/0/0/')
       const trieNode = result.value
       expect(result.remainderPath).to.eql('0/a/0/0')
       expect(CID.isCID(trieNode)).to.be.true()
     })
 
-    it('neck node resolves "a" down to branch', async () => {
+    it('neck node resolves "a" down to branch', () => {
       const node = dagNodes[1]
-      const result = await resolver.resolve(node, 'a/0/a/0/0/')
+      const result = resolver.resolve(node, 'a/0/a/0/0/')
       const trieNode = result.value
       expect(result.remainderPath).to.eql('0/a/0/0')
       expect(CID.isCID(trieNode)).to.be.true()

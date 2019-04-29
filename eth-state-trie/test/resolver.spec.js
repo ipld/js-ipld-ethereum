@@ -71,7 +71,7 @@ describe('IPLD format resolver (local)', () => {
   describe('resolver.resolve', () => {
     it('root node resolves to branch', async () => {
       const rootNode = dagNodes['']
-      const result = await resolver.resolve(rootNode, '0/0/0/c/0/a/0/0/codeHash')
+      const result = resolver.resolve(rootNode, '0/0/0/c/0/a/0/0/codeHash')
       const trieNode = result.value
       expect(result.remainderPath).to.eql('c/0/a/0/0/codeHash')
       expect(CID.isCID(trieNode)).to.be.true()
@@ -81,7 +81,7 @@ describe('IPLD format resolver (local)', () => {
 
     it('neck node resolves down to c branch', async () => {
       const neckNode = dagNodes['0/0/0']
-      const result = await resolver.resolve(neckNode, 'c/0/a/0/0/codeHash')
+      const result = resolver.resolve(neckNode, 'c/0/a/0/0/codeHash')
       const trieNode = result.value
       expect(result.remainderPath).to.eql('0/a/0/0/codeHash')
       expect(CID.isCID(trieNode)).to.be.true()
@@ -89,9 +89,9 @@ describe('IPLD format resolver (local)', () => {
       expect(trieNode.equals(cid)).to.be.true()
     })
 
-    it('"c" branch node resolves down to account data', async () => {
+    it('"c" branch node resolves down to account data', () => {
       const cBranchNode = dagNodes['0/0/0/c']
-      const result = await resolver.resolve(cBranchNode, '0/a/0/0/codeHash')
+      const result = resolver.resolve(cBranchNode, '0/a/0/0/codeHash')
       const trieNode = result.value
       expect(result.remainderPath).to.eql('')
       expect(CID.isCID(trieNode)).to.be.false()
@@ -101,7 +101,7 @@ describe('IPLD format resolver (local)', () => {
   })
 
   describe('resolver.tree', () => {
-    it('"c" branch node lists account paths', async () => {
+    it('"c" branch node lists account paths', () => {
       const cBranchNode = dagNodes['0/0/0/c']
       const tree = resolver.tree(cBranchNode)
       const paths = [...tree]

@@ -52,8 +52,8 @@ describe('IPLD format resolver (local)', () => {
   })
 
   describe('resolver.resolve', () => {
-    it('path within scope', async () => {
-      const result = await resolver.resolve(testBlob, 'number')
+    it('path within scope', () => {
+      const result = resolver.resolve(testBlob, 'number')
       expect(result.value.toString('hex')).to.equal(testData.number.toString('hex'))
     })
   })
@@ -147,43 +147,43 @@ describe('manual ancestor walking', () => {
     await ipldEthBlock.util.cid(serialized3)
   })
 
-  it('root path (same as get)', async () => {
-    const result = await ipldEthBlock.resolver.resolve(serialized1, '/')
-    const deserialized = await ipldEthBlock.util.deserialize(serialized1)
+  it('root path (same as get)', () => {
+    const result = ipldEthBlock.resolver.resolve(serialized1, '/')
+    const deserialized = ipldEthBlock.util.deserialize(serialized1)
     expect(result.value).to.eql(deserialized)
   })
 
-  it('value within 1st node scope', async () => {
-    const result = await ipldEthBlock.resolver.resolve(ethBlock3, 'number')
+  it('value within 1st node scope', () => {
+    const result = ipldEthBlock.resolver.resolve(ethBlock3, 'number')
     expect(result.remainderPath).to.eql('')
     expect(CID.isCID(result.value)).to.be.false()
     expect(result.value.toString('hex')).to.eql('03')
   })
 
-  it('value within nested scope (1 level)', async () => {
-    const result = await ipldEthBlock.resolver.resolve(ethBlock3, 'parent/number')
+  it('value within nested scope (1 level)', () => {
+    const result = ipldEthBlock.resolver.resolve(ethBlock3, 'parent/number')
     expect(result.remainderPath).to.eql('number')
     expect(CID.isCID(result.value)).to.be.true()
     expect(result.value.equals(cid2)).to.be.true()
 
-    const result2 = await ipldEthBlock.resolver.resolve(ethBlock2, result.remainderPath)
+    const result2 = ipldEthBlock.resolver.resolve(ethBlock2, result.remainderPath)
     expect(result2.remainderPath).to.eql('')
     expect(CID.isCID(result2.value)).to.be.false()
     expect(result2.value.toString('hex')).to.eql('02')
   })
 
-  it('value within nested scope (2 levels)', async () => {
-    const result = await ipldEthBlock.resolver.resolve(ethBlock3, 'parent/parent/number')
+  it('value within nested scope (2 levels)', () => {
+    const result = ipldEthBlock.resolver.resolve(ethBlock3, 'parent/parent/number')
     expect(result.remainderPath).to.eql('parent/number')
     expect(CID.isCID(result.value)).to.be.true()
     expect(result.value.equals(cid2)).to.be.true()
 
-    const result2 = await ipldEthBlock.resolver.resolve(ethBlock2, result.remainderPath)
+    const result2 = ipldEthBlock.resolver.resolve(ethBlock2, result.remainderPath)
     expect(result2.remainderPath).to.eql('number')
     expect(CID.isCID(result2.value)).to.be.true()
     expect(result2.value.equals(cid1)).to.be.true()
 
-    const result3 = await ipldEthBlock.resolver.resolve(ethBlock1, result2.remainderPath)
+    const result3 = ipldEthBlock.resolver.resolve(ethBlock1, result2.remainderPath)
     expect(result3.remainderPath).to.eql('')
     expect(CID.isCID(result3.value)).to.be.false()
     expect(result3.value.toString('hex')).to.eql('01')
