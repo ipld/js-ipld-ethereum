@@ -1,3 +1,36 @@
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/ipld/js-ipld-ethereum/compare/v2.0.3...v3.0.0) (2019-05-08)
+
+
+### Bug Fixes
+
+* **package:** update cids to version 0.6.0 ([c38363a](https://github.com/ipld/js-ipld-ethereum/commit/c38363a))
+* **package:** update multihashing-async to version 0.6.0 ([4eaa791](https://github.com/ipld/js-ipld-ethereum/commit/4eaa791))
+
+
+### Features
+
+* new IPLD Format API ([dc19aa7](https://github.com/ipld/js-ipld-ethereum/commit/dc19aa7))
+
+
+### BREAKING CHANGES
+
+* The API is now async/await based
+
+There are numerous changes, the most significant one is that the API
+is no longer callback based, but it using async/await.
+
+If you want to access the original JavaScript Ethereum object, it is
+now stored in a property called `_ethObj`. So if you e.g. called
+`deserialized.hash()`, you now have to call
+`deserialized._ethObj.hash()`.
+
+For the full new API please see the [IPLD Formats spec].
+
+[IPLD Formats spec]: https://github.com/ipld/interface-ipld-format
+
+
+
 <a name="2.0.3"></a>
 ## [2.0.3](https://github.com/ipld/js-ipld-ethereum/compare/v2.0.2...v2.0.3) (2019-01-18)
 
