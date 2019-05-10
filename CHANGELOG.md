@@ -1,3 +1,22 @@
+<a name="4.0.0"></a>
+# [4.0.0](https://github.com/ipld/js-ipld-ethereum/compare/v3.0.0...v4.0.0) (2019-05-10)
+
+
+### Bug Fixes
+
+* **package:** update cids to version 0.7.0 ([962737a](https://github.com/ipld/js-ipld-ethereum/commit/962737a))
+
+
+### BREAKING CHANGES
+
+* **package:** Returned v1 CIDs now default to base32 encoding
+
+Previous versions returned a base58 encoded string when `toString()`/
+`toBaseEncodedString()` was called on a CIDv1. It now returns a base32
+encoded string.
+
+
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/ipld/js-ipld-ethereum/compare/v2.0.3...v3.0.0) (2019-05-08)
 
