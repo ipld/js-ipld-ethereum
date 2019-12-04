@@ -1,5 +1,5 @@
 'use strict'
-const EthAccount = require('ethereumjs-account')
+const EthAccount = require('ethereumjs-account').default
 const multicodec = require('multicodec')
 
 const cidFromHash = require('../util/cidFromHash')

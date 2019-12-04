@@ -4,7 +4,7 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const Transaction = require('ethereumjs-tx')
+const Transaction = require('ethereumjs-tx').Transaction
 const dagEthTx = require('../index')
 const resolver = dagEthTx.resolver
 const util = dagEthTx.util

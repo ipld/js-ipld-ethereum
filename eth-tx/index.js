@@ -1,5 +1,5 @@
 'use strict'
-const EthTx = require('ethereumjs-tx')
+const EthTx = require('ethereumjs-tx').Transaction
 const createResolver = require('../util/createResolver')
 const multicodec = require('multicodec')
 

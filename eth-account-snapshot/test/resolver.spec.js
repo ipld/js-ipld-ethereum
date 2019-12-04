@@ -6,7 +6,7 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const dagEthAccount = require('../index')
 const resolver = dagEthAccount.resolver
-const Account = require('ethereumjs-account')
+const Account = require('ethereumjs-account').default
 const emptyCodeHash = require('../../util/emptyCodeHash')
 const CID = require('cids')
 const multicodec = require('multicodec')
