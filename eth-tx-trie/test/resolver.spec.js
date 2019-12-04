@@ -6,7 +6,7 @@ chai.use(require('dirty-chai'))
 const expect = chai.expect
 const CID = require('cids')
 const EthBlock = require('ethereumjs-block')
-const EthTx = require('ethereumjs-tx')
+const EthTx = require('ethereumjs-tx').Transaction
 const multicodec = require('multicodec')
 const promisify = require('promisify-es6')
 const ipldEthTxTrie = require('../index')

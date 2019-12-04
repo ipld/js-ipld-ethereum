@@ -4,7 +4,7 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const Account = require('ethereumjs-account')
+const Account = require('ethereumjs-account').default
 const Trie = require('merkle-patricia-tree')
 const multicodec = require('multicodec')
 const CID = require('cids')
