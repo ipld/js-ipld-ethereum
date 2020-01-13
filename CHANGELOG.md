@@ -1,3 +1,14 @@
+<a name="4.0.1"></a>
+## [4.0.1](https://github.com/ipld/js-ipld-ethereum/compare/v4.0.0...v4.0.1) (2020-01-13)
+
+
+### Bug Fixes
+
+* **package:** update multicodec to version 1.0.0 ([640126a](https://github.com/ipld/js-ipld-ethereum/commit/640126a))
+* **package:** update multihashing-async to version 0.8.0 ([dc96913](https://github.com/ipld/js-ipld-ethereum/commit/dc96913))
+
+
+
 <a name="4.0.0"></a>
 # [4.0.0](https://github.com/ipld/js-ipld-ethereum/compare/v3.0.0...v4.0.0) (2019-05-10)
 
