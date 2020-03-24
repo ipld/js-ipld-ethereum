@@ -21,7 +21,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "cids": "~0.7.0",
+    "cids": "~0.8.0",
     "ethereumjs-account": "^3.0.0",
     "ethereumjs-block": "^2.2.1",
     "ethereumjs-tx": "^2.1.1",
