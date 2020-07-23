@@ -1,3 +1,13 @@
+<a name="4.0.2"></a>
+## [4.0.2](https://github.com/ipld/js-ipld-ethereum/compare/v4.0.1...v4.0.2) (2020-07-23)
+
+
+### Bug Fixes
+
+* **package:** update cids to version 0.8.0 ([cb9538b](https://github.com/ipld/js-ipld-ethereum/commit/cb9538b))
+
+
+
 <a name="4.0.1"></a>
 ## [4.0.1](https://github.com/ipld/js-ipld-ethereum/compare/v4.0.0...v4.0.1) (2020-01-13)
 
