@@ -1,6 +1,7 @@
 'use strict'
 const CID = require('cids')
 const multicodec = require('multicodec')
+const { Buffer } = require('buffer')
 const createUtil = require('../util/createUtil')
 
 const createResolver = (codec, deserialize) => {
