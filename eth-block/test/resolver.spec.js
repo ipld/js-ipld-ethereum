@@ -8,6 +8,7 @@ const CID = require('cids')
 const EthBlockHeader = require('ethereumjs-block/header')
 const multihash = require('multihashes')
 const multicodec = require('multicodec')
+const { Buffer } = require('buffer')
 
 const ipldEthBlock = require('../index')
 const resolver = ipldEthBlock.resolver

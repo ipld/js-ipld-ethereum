@@ -9,6 +9,7 @@ const Trie = require('merkle-patricia-tree')
 const multicodec = require('multicodec')
 const CID = require('cids')
 const promisify = require('promisify-es6')
+const { Buffer } = require('buffer')
 const ipldEthStateTrie = require('../index')
 const resolver = ipldEthStateTrie.resolver
 

@@ -1,6 +1,7 @@
 'use strict'
 const EthAccount = require('ethereumjs-account').default
 const multicodec = require('multicodec')
+const { Buffer } = require('buffer')
 
 const cidFromHash = require('../util/cidFromHash')
 const createResolver = require('../util/createResolver')

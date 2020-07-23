@@ -10,6 +10,7 @@ const Account = require('ethereumjs-account').default
 const emptyCodeHash = require('../../util/emptyCodeHash')
 const CID = require('cids')
 const multicodec = require('multicodec')
+const { Buffer } = require('buffer')
 
 describe('IPLD format resolver (local)', () => {
   const testData = {

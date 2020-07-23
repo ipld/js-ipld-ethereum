@@ -9,6 +9,7 @@ const EthBlock = require('ethereumjs-block')
 const EthTx = require('ethereumjs-tx').Transaction
 const multicodec = require('multicodec')
 const promisify = require('promisify-es6')
+const { Buffer } = require('buffer')
 const ipldEthTxTrie = require('../index')
 const resolver = ipldEthTxTrie.resolver
 

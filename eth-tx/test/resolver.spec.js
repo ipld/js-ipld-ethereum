@@ -10,6 +10,7 @@ const resolver = dagEthTx.resolver
 const util = dagEthTx.util
 const multihash = require('multihashes')
 const multicodec = require('multicodec')
+const { Buffer } = require('buffer')
 
 describe('IPLD format resolver (local)', () => {
   const testData = {
