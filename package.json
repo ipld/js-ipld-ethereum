@@ -1,6 +1,6 @@
 {
   "name": "ipld-ethereum",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "JavaScript Implementation of All Ethereum IPLD formats",
   "leadMaintainer": "Volker Mische <volker.mische@gmail.com>",
   "main": "src/index.js",
@@ -39,16 +39,14 @@
     "promisify-es6": "^1.0.3"
   },
   "contributors": [
-    "Alan Shaw <alan.shaw@protocol.ai>",
+    "kumavis <aaron@kumavis.me>",
+    "Volker Mische <volker.mische@gmail.com>",
     "David Dias <daviddias.p@gmail.com>",
     "Richard Schneider <makaretu@gmail.com>",
-    "Rod Vagg <rod@vagg.org>",
     "Victor Bjelkholm <victorbjelkholm@gmail.com>",
-    "Volker Mische <volker.mische@gmail.com>",
-    "greenkeeper[bot] <23040076+greenkeeper[bot]@users.noreply.github.com>",
-    "greenkeeper[bot] <greenkeeper[bot]@users.noreply.github.com>",
-    "harrshasri <35241544+harrshasri@users.noreply.github.com>",
-    "kumavis <aaron@kumavis.me>"
+    "Alan Shaw <alan.shaw@protocol.ai>",
+    "Rod Vagg <rod@vagg.org>",
+    "achingbrain <alex@achingbrain.net>"
   ],
   "directories": {
     "test": "test"
