@@ -15,10 +15,10 @@ const createUtil = (codec, deserialize) => {
     deserialize: (serialized) => {
       if (Array.isArray(serialized)) {
         if (!Buffer.isBuffer(serialized[0])) {
-          serialized = serialized.map(s => Buffer.from(s))
+          serialized = serialized.map(s => Buffer.from(s, s.byteOffset, s.byteLength))
         }
       } else if (!Buffer.isBuffer(serialized)) {
-        serialized = Buffer.from(serialized)
+        serialized = Buffer.from(serialized, serialized.byteOffset, serialized.byteLength)
       }
 
       return deserialize(serialized)
