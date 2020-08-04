@@ -1,9 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const Transaction = require('ethereumjs-tx').Transaction
 const dagEthTx = require('../index')
 const resolver = dagEthTx.resolver

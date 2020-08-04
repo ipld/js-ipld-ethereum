@@ -1,9 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const chai = require('chai')
-chai.use(require('dirty-chai'))
-const expect = chai.expect
+const { expect } = require('aegir/utils/chai')
 const dagEthAccount = require('../index')
 const resolver = dagEthAccount.resolver
 const Account = require('ethereumjs-account').default

@@ -1,7 +1,6 @@
 'use strict'
 const CID = require('cids')
 const multicodec = require('multicodec')
-const { Buffer } = require('buffer')
 const createUtil = require('../util/createUtil')
 
 const createResolver = (codec, deserialize) => {
@@ -13,7 +12,7 @@ const createResolver = (codec, deserialize) => {
    * Returns the value or a link and the partial mising path. This way the
    * IPLD Resolver can fetch the link and continue to resolve.
    *
-   * @param {Buffer} binaryBlob - Binary representation of a Ethereum block
+   * @param {Uint8Array} binaryBlob - Binary representation of a Ethereum block
    * @param {string} [path='/'] - Path that should be resolved
    * @returns {Object} result - Result of the path it it was resolved successfully
    * @returns {*} result.value - Value the path resolves to
@@ -48,7 +47,7 @@ const createResolver = (codec, deserialize) => {
 
   const _traverse = function * (node, path) {
     // Traverse only objects and arrays
-    if (Buffer.isBuffer(node) || CID.isCID(node) || typeof node === 'string' ||
+    if (node instanceof Uint8Array || CID.isCID(node) || typeof node === 'string' ||
         node === null) {
       return
     }
