@@ -1,3 +1,19 @@
+<a name="5.0.0"></a>
+# [5.0.0](https://github.com/ipld/js-ipld-ethereum/compare/v4.0.2...v5.0.0) (2020-08-04)
+
+
+### Bug Fixes
+
+* replace node buffers with uint8arrays ([#69](https://github.com/ipld/js-ipld-ethereum/issues/69)) ([a8fc4f5](https://github.com/ipld/js-ipld-ethereum/commit/a8fc4f5))
+
+
+### BREAKING CHANGES
+
+* - `util.serialize` returns a `Uint8Array`
+- `util.cid` returns `CID`s with a breaking API change - see https://github.com/multiformats/js-cid/pull/117 for changes
+
+
+
 <a name="4.0.2"></a>
 ## [4.0.2](https://github.com/ipld/js-ipld-ethereum/compare/v4.0.1...v4.0.2) (2020-07-23)
 
