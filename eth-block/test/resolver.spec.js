@@ -9,6 +9,7 @@ const EthBlockHeader = require('ethereumjs-block/header')
 const multihash = require('multihashes')
 const multicodec = require('multicodec')
 const { Buffer } = require('buffer')
+const uint8ArrayToString = require('uint8arrays/to-string')
 
 const ipldEthBlock = require('../index')
 const resolver = ipldEthBlock.resolver
@@ -51,7 +52,7 @@ describe('IPLD format resolver (local)', () => {
     const reconstructedCid = new CID(encodedCid)
     expect(cid.version).to.equal(reconstructedCid.version)
     expect(cid.codec).to.equal(reconstructedCid.codec)
-    expect(cid.multihash.toString('hex')).to.equal(reconstructedCid.multihash.toString('hex'))
+    expect(uint8ArrayToString(cid.multihash, 'base16')).to.equal(uint8ArrayToString(reconstructedCid.multihash, 'base16'))
   })
 
   describe('resolver.resolve', () => {

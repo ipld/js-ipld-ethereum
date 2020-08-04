@@ -9,17 +9,27 @@ const createUtil = (codec, deserialize) => {
     /**
      * Deserialize Ethereum block into the internal representation.
      *
-     * @param {Buffer} serialized - Binary representation of a Ethereum block.
+     * @param {Uint8Array|Array<Uint8Array>} serialized - Binary representation of a Ethereum block.
      * @returns {Object}
      */
-    deserialize,
+    deserialize: (serialized) => {
+      if (Array.isArray(serialized)) {
+        if (!Buffer.isBuffer(serialized[0])) {
+          serialized = serialized.map(s => Buffer.from(s))
+        }
+      } else if (!Buffer.isBuffer(serialized)) {
+        serialized = Buffer.from(serialized)
+      }
+
+      return deserialize(serialized)
+    },
     /**
      * Serialize internal representation into a binary Ethereum block.
      *
      * @param {Object} deserialized - Internal representation of a Bitcoin block
-     * @returns {Buffer}
+     * @returns {Uint8Array}
      */
-    serialize: (deserialized) => deserialized._ethObj.serialize(),
+    serialize: (deserialized) => Uint8Array.from(deserialized._ethObj.serialize()),
     /**
      * Calculate the CID of the binary blob.
      *

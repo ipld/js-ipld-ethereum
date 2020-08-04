@@ -3,7 +3,6 @@ const rlp = require('rlp')
 const EthTrieNode = require('merkle-patricia-tree/trieNode')
 const cidFromHash = require('./cidFromHash')
 const createResolver = require('./createResolver')
-const createUtil = require('./createUtil')
 
 // A `nibble` is an array of nested keys. So for example `[2, 1, 3]` would
 // mean an item with value `"foo"` would be in an object like this:
