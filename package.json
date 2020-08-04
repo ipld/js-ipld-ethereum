@@ -1,6 +1,6 @@
 {
   "name": "ipld-ethereum",
-  "version": "4.0.2",
+  "version": "5.0.0",
   "description": "JavaScript Implementation of All Ethereum IPLD formats",
   "leadMaintainer": "Volker Mische <volker.mische@gmail.com>",
   "main": "src/index.js",
@@ -42,10 +42,10 @@
     "Volker Mische <volker.mische@gmail.com>",
     "David Dias <daviddias.p@gmail.com>",
     "Richard Schneider <makaretu@gmail.com>",
+    "Alex Potsides <alex@achingbrain.net>",
     "Victor Bjelkholm <victorbjelkholm@gmail.com>",
     "Alan Shaw <alan.shaw@protocol.ai>",
-    "Rod Vagg <rod@vagg.org>",
-    "achingbrain <alex@achingbrain.net>"
+    "Rod Vagg <rod@vagg.org>"
   ],
   "directories": {
     "test": "test"
