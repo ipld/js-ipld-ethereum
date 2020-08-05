@@ -1,3 +1,13 @@
+<a name="5.0.1"></a>
+## [5.0.1](https://github.com/ipld/js-ipld-ethereum/compare/v5.0.0...v5.0.1) (2020-08-05)
+
+
+### Bug Fixes
+
+* add missing buffer require ([#70](https://github.com/ipld/js-ipld-ethereum/issues/70)) ([c84898b](https://github.com/ipld/js-ipld-ethereum/commit/c84898b)), closes [/github.com/ipld/js-ipld-ethereum/pull/69/files#r465473783](https://github.com//github.com/ipld/js-ipld-ethereum/pull/69/files/issues/r465473783)
+
+
+
 <a name="5.0.0"></a>
 # [5.0.0](https://github.com/ipld/js-ipld-ethereum/compare/v4.0.2...v5.0.0) (2020-08-04)
 
