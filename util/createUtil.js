@@ -1,6 +1,7 @@
 const CID = require('cids')
 const multicodec = require('multicodec')
 const multihashing = require('multihashing-async')
+const { Buffer } = require('buffer')
 
 const DEFAULT_HASH_ALG = multicodec.KECCAK_256
 

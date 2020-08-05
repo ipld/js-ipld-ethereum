@@ -62,7 +62,7 @@ const createResolver = (codec, deserialize) => {
    * Return all available paths of a block.
    *
    * @generator
-   * @param {Buffer} binaryBlob - Binary representation of a Bitcoin block
+   * @param {Uint8Array} binaryBlob - Binary representation of a Bitcoin block
    * @yields {string} - A single path
    */
   const tree = function * (binaryBlob) {
