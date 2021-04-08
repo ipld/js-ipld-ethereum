@@ -8,7 +8,7 @@ module.exports = cidFromHash
 
 function cidFromHash (codec, rawhash, options) {
   // `CID` expects a string for the multicodec
-  const codecName = multicodec.print[codec]
+  const codecName = multicodec.getNameFromCode(codec)
   options = options || {}
   const hashAlg = options.hashAlg || 'keccak-256'
   const version = typeof options.version === 'undefined' ? 1 : options.version

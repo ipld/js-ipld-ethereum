@@ -6,6 +6,7 @@ const CID = require('cids')
 const multihash = require('multihashes')
 const multicodec = require('multicodec')
 const EthBlockFromRpc = require('ethereumjs-block/from-rpc')
+const uint8ArrayToString = require('uint8arrays/to-string')
 
 const dagEthBlockList = require('../index')
 const resolver = dagEthBlockList.resolver
@@ -139,7 +140,7 @@ describe('IPLD format resolver (local)', () => {
       expect(cid.codec).to.equal('eth-block-list')
       const mhash = multihash.decode(cid.multihash)
       expect(mhash.name).to.equal('keccak-256')
-      expect(mhash.digest.toString('hex')).to.equal(ethBlock.header.uncleHash.toString('hex'))
+      expect(uint8ArrayToString(mhash.digest, 'base16')).to.equal(ethBlock.header.uncleHash.toString('hex'))
     })
 
     it('should create CID, no options', async () => {

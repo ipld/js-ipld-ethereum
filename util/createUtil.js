@@ -45,7 +45,7 @@ const createUtil = (codec, deserialize) => {
       const options = Object.assign(defaultOptions, userOptions)
 
       const multihash = await multihashing(binaryBlob, options.hashAlg)
-      const codecName = multicodec.print[codec]
+      const codecName = multicodec.getNameFromCode(codec)
       const cid = new CID(options.cidVersion, codecName, multihash)
 
       return cid
