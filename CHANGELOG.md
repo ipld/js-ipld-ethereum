@@ -1,3 +1,7 @@
+# [6.0.0](https://github.com/ipld/js-ipld-ethereum/compare/v5.0.1...v6.0.0) (2021-04-09)
+
+
+
 <a name="5.0.1"></a>
 ## [5.0.1](https://github.com/ipld/js-ipld-ethereum/compare/v5.0.0...v5.0.1) (2020-08-05)
 
