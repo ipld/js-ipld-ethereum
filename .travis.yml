@@ -21,7 +21,7 @@ os:
   - osx
   - windows
 
-script: npx nyc -s npm run test:node -- --bail
+script: npm run test:node -- --cov
 after_success: npx nyc report --reporter=text-lcov > coverage.lcov && npx codecov
 
 jobs:
