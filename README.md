@@ -1,3 +1,5 @@
+⛔️ DEPRECATED: This module is no longer maintained. It can be used with [multiformats](https://github.com/multiformats/js-multiformats) by wrapping it with [ipld-format-to-blockcodec](https://github.com/ipld/js-ipld-format-to-blockcodec) <!-- omit in toc -->
+
 # js-ipld-ethereum
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
